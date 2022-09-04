@@ -9,10 +9,6 @@ class KArmedBandit:
         reward = np.random.normal(action_value, 1, 1)
         return reward
 
-b = KArmedBandit()
-print(b._action_values)
-print(b.step(3))
-
 class EpsilonGreedy:
     def __init__(
         self,
@@ -24,7 +20,7 @@ class EpsilonGreedy:
     ):
         self._epsilon = epsilon
         self._step_size = step_size
-        self._num_action_tries = np.zeros(num_actions)
+        self._num_action_tries = np.zeros(num_actions, dtype=np.int)
 
         if initial_value_estimates is None:
             self._value_estimates = np.zeros(num_actions)
@@ -45,9 +41,45 @@ class EpsilonGreedy:
                 for a, value in enumerate(self._value_estimates)
                 if value == optimal_value
             ]
-            self._action = self._rng.choice(optimal_action_list)
+            action = self._rng.choice(optimal_action_list)
         else:
-            self._action = np.random.randint(self._value_estimates.size)
+            action = np.random.randint(self._value_estimates.size)
 
-        return self._action
+        self._num_action_tries[action] += 1
+        return action
 
+    def update(self, action, reward):
+        self._value_estimates[action] += (
+            (reward - self._value_estimates[action])
+            / self._num_action_tries[action]
+        )
+
+
+env = KArmedBandit()
+print(env._action_values)
+print(env.step(3))
+agent = EpsilonGreedy()
+N = 1000
+for i in range(N):
+    print("Performing step %i/%i" % (i + 1, N), end="\r")
+    action = agent.choose_action()
+    reward = env.step(action)
+    agent.update(action, reward)
+
+optimal_value = max(env._action_values)
+optimal_actions = [
+    a
+    for a, value in enumerate(env._action_values)
+    if value == optimal_value
+]
+percent_optimal = (
+    (100.0 * sum(agent._num_action_tries[i] for i in optimal_actions)) / N
+)
+print(
+    "\n",
+    env._action_values,
+    agent._value_estimates,
+    agent._num_action_tries,
+    "Percent optimal = %.1f%%" % percent_optimal,
+    sep="\n",
+)
