@@ -13,22 +13,21 @@ class Line:
         self._x = x
         self._y = y
         self._kwargs = kwargs
+        self.has_label = ("label" in self._kwargs)
 
     def plot(self, axis):
         axis.plot(self._x, self._y, **self._kwargs)
 
-    def has_label(self):
-        return "label" in self._kwargs
-
     def get_handle(self):
-        if "alpha" in self._kwargs:
-            alpha = self._kwargs.pop("alpha")
-            handle = self._get_handle_from_kwargs(self._kwargs)
-            self._kwargs["alpha"] = alpha
-        else:
-            handle = self._get_handle_from_kwargs(self._kwargs)
+        if self.has_label:
+            if "alpha" in self._kwargs:
+                alpha = self._kwargs.pop("alpha")
+                handle = self._get_handle_from_kwargs(self._kwargs)
+                self._kwargs["alpha"] = alpha
+            else:
+                handle = self._get_handle_from_kwargs(self._kwargs)
 
-        return handle
+            return handle
 
     def _get_handle_from_kwargs(self, kwargs):
         return matplotlib.lines.Line2D([], [], **kwargs)
@@ -133,7 +132,7 @@ def plot(
     if legend_properties is not None:
         legend_axis.legend(
             handles=[
-                line.get_handle() for line in line_list if line.has_label()
+                line.get_handle() for line in line_list if line.has_label
             ],
             loc="center",
         )
