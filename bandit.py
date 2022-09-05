@@ -116,10 +116,22 @@ marker_props = ["", "o", 0.5 / num_repeats, 10]
 cp = plotting.ColourPicker(len(agent_result_list))
 rewards_line_list = [
     line
-    for i, a in enumerate(agent_result_list)
+    for i, agent_result in enumerate(agent_result_list)
     for line in [
-        plotting.Line(t_tiled, a.reward_array, cp(i), *marker_props),
-        plotting.Line(t, np.mean(a.reward_array, axis=0), cp(i), *line_props),
+        plotting.Line(
+            t_tiled,
+            agent_result.reward_array,
+            cp(i),
+            *marker_props,
+            label="%s (single reward)" % agent_result.name,
+        ),
+        plotting.Line(
+            t,
+            np.mean(agent_result.reward_array, axis=0),
+            cp(i),
+            *line_props,
+            label="%s (mean reward)" % agent_result.name,
+        ),
     ]
 ]
 percent_optimal_choice_line_list = [
@@ -128,6 +140,7 @@ percent_optimal_choice_line_list = [
         100 * np.mean(agent_result.optimal_choice_array, axis=0),
         cp(i),
         *line_props,
+        label=agent_result.name,
     )
     for i, agent_result in enumerate(agent_result_list)
 ]
@@ -135,6 +148,8 @@ plotting.plot(
     rewards_line_list,
     "Epsilon greedy rewards",
     axis_properties=plotting.AxisProperties("Time", "Reward", None, [-2, 4]),
+    legend_properties=plotting.LegendProperties(0.4),
+    figsize=[12, 6],
 )
 plotting.plot(
     percent_optimal_choice_line_list,
@@ -145,4 +160,5 @@ plotting.plot(
         None,
         [0, 100],
     ),
+    legend_properties=plotting.LegendProperties(),
 )
