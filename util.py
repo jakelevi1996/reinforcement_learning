@@ -32,5 +32,12 @@ class ResultSavingContext:
     def __enter__(self):
         return self._result
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(self, *args):
         self._result.save()
+
+class BlankContext:
+    def __enter__(self):
+        return
+
+    def __exit__(self, *args):
+        return
