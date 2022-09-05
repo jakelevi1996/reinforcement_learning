@@ -2,6 +2,8 @@ import argparse
 import os
 import time
 import numpy as np
+if __name__ == "__main__":
+    import __init__
 import plotting
 import util
 
