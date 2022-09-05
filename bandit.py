@@ -239,6 +239,19 @@ if __name__ == "__main__":
         type=str,
     )
     parser.add_argument(
+        "--filename",
+        help="Filename to/from which results should be saved/loaded, "
+        "depending on if the --load_data argument is present",
+        default=None,
+        type=str,
+    )
+    parser.add_argument(
+        "--load_data",
+        help="If present, do not perform any experiments, and instead load "
+        "results data from file",
+        action="store_true",
+    )
+    parser.add_argument(
         "--num_steps",
         help="Number of time steps to simulate for each rollout",
         default=1000,
@@ -254,6 +267,15 @@ if __name__ == "__main__":
     # Parse arguments
     args = parser.parse_args()
 
+    # If we're loading data from file, do so now, because in case
+    # args.results_dir hasn't been provided, args.num_steps and
+    # args.num_repeats need to be loaded before args.results_dir is set
+    if args.load_data:
+        result_data = util.Result(args.filename).load()
+        agent_result_list = result_data.agent_result_list
+        args.num_steps = result_data.num_steps
+        args.num_repeats = result_data.num_repeats
+
     if args.results_dir is None:
         args.results_dir = os.path.join(
             CURRENT_DIR,
@@ -261,21 +283,32 @@ if __name__ == "__main__":
             "Bandit",
             "%i_repeats_%i_steps" % (args.num_repeats, args.num_steps)
         )
-    agent_result_list = [
-        AgentResult(
-            agent_type,
-            agent_type().get_name(),
+    if args.filename is None:
+        args.filename = os.path.join(args.results_dir, "bandit_data.pkl")
+
+    if not args.load_data:
+        agent_result_list = [
+            AgentResult(
+                agent_type,
+                agent_type().get_name(),
+                args.num_steps,
+                args.num_repeats,
+            )
+            for agent_type in [EpsilonGreedy, EpsilonGreedyConstantStepSize]
+        ]
+        result_data = ResultData(
+            agent_result_list,
             args.num_steps,
             args.num_repeats,
         )
-        for agent_type in [EpsilonGreedy, EpsilonGreedyConstantStepSize]
-    ]
-    t_start = time.perf_counter()
+        result = util.Result(args.filename, result_data)
+        with result.get_results_saving_context():
+            t_start = time.perf_counter()
 
-    main(agent_result_list, args)
+            main(agent_result_list, args)
 
-    t_total = time.perf_counter() - t_start
-    print("\nFinished main function in %.1fs" % t_total)
+            t_total = time.perf_counter() - t_start
+            print("\nFinished main function in %.1fs" % t_total)
 
     print("Plotting results...")
     plot(agent_result_list, args)
