@@ -4,85 +4,12 @@ import time
 import numpy as np
 if __name__ == "__main__":
     import __init__
+import agents
+import environments
 import plotting
 import util
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-
-class KArmedBandit:
-    def __init__(self, k=10, rng=None):
-        if rng is None:
-            self._rng = np.random.default_rng()
-        else:
-            self._rng = rng
-        self._action_values = self._rng.normal(0, 1, k)
-
-    def step(self, action):
-        action_value = self._action_values[action]
-        reward = self._rng.normal(action_value, 1, 1)
-        return reward
-
-class EpsilonGreedy:
-    def __init__(
-        self,
-        epsilon=0.1,
-        step_size=0.1,
-        num_actions=10,
-        initial_value_estimates=None,
-        rng=None,
-    ):
-        self._epsilon = epsilon
-        self._step_size = step_size
-        self._num_action_tries = np.zeros(num_actions, dtype=np.int)
-
-        if initial_value_estimates is None:
-            self._value_estimates = np.zeros(num_actions)
-        else:
-            self._value_estimates = initial_value_estimates
-
-        if rng is None:
-            self._rng = np.random.default_rng()
-        else:
-            self._rng = rng
-
-    def get_name(self):
-        name = "$\\varepsilon$-greedy$(\\varepsilon=%.2f)$" % self._epsilon
-        return name
-
-    def choose_action(self):
-        is_greedy = (self._rng.random() > self._epsilon)
-        if is_greedy:
-            optimal_value = max(self._value_estimates)
-            optimal_action_list = [
-                a
-                for a, value in enumerate(self._value_estimates)
-                if value == optimal_value
-            ]
-            action = self._rng.choice(optimal_action_list)
-        else:
-            action = self._rng.integers(self._value_estimates.size)
-
-        self._num_action_tries[action] += 1
-        return action
-
-    def update(self, action, reward):
-        self._value_estimates[action] += (
-            (reward - self._value_estimates[action])
-            / self._num_action_tries[action]
-        )
-
-class EpsilonGreedyConstantStepSize(EpsilonGreedy):
-    def update(self, action, reward):
-        self._value_estimates[action] += (
-            self._step_size * (reward - self._value_estimates[action])
-        )
-
-    def get_name(self):
-        name = (
-            "$\\varepsilon$-greedy$(\\varepsilon=%.2f,\\alpha=%.2f)$"
-            % (self._epsilon, self._step_size)
-        )
-        return name
 
 class AgentResult:
     def __init__(self, agent_type, name, num_steps, num_repeats):
@@ -102,7 +29,7 @@ def main(agent_result_list, args):
                 "Performing repeat %i/%i..."
                 % (i + 1, args.num_repeats), end="\r"
             )
-        env = KArmedBandit()
+        env = environments.KArmedBandit()
         optimal_actions = [
             a for a, value in enumerate(env._action_values)
             if value == max(env._action_values)
@@ -292,7 +219,10 @@ if __name__ == "__main__":
                 args.num_steps,
                 args.num_repeats,
             )
-            for agent_type in [EpsilonGreedy, EpsilonGreedyConstantStepSize]
+            for agent_type in [
+                agents.bandits.EpsilonGreedy,
+                agents.bandits.EpsilonGreedyConstantStepSize,
+            ]
         ]
         result_data = [agent_result_list, args.num_steps, args.num_repeats]
         result = util.Result(args.save_data_filename, result_data)
