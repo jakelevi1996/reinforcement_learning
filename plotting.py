@@ -48,6 +48,19 @@ class FillBetween(Line):
         if self.has_label:
             return matplotlib.patches.Patch(**self._kwargs)
 
+class HVLine(Line):
+    def __init__(self, h=None, v=None, **kwargs):
+        self._h = h
+        self._v = v
+        self._kwargs = kwargs
+        self.has_label = ("label" in self._kwargs)
+
+    def plot(self, axis):
+        if self._h is not None:
+            axis.axhline(self._h, **self._kwargs)
+        if self._v is not None:
+            axis.avhline(self._v, **self._kwargs)
+
 class ColourPicker:
     def __init__(self, num_colours, cyclic=True, cmap_name=None):
         if cmap_name is None:
