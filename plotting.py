@@ -21,17 +21,30 @@ class Line:
     ):
         if x is None:
             x = range(len(y))
-        self.x = x
-        self.y = y
-        self.label = label
+        self._x = x
+        self._y = y
         self.fill = fill
         self._colour = colour
         self._line_style = line_style
         self._marker_style = marker_style
         self._alpha = alpha
         self._zorder = zorder
+        self._label = label
 
-    def get_kwargs(self):
+    def plot(self, axis):
+        axis.plot(self._x, self._y, **self._get_kwargs())
+
+    def get_handle(self):
+        kwargs = self._get_kwargs()
+        kwargs.pop("alpha", None)
+        handle = matplotlib.lines.Line2D([], [], **kwargs)
+        return handle
+
+    def has_label(self):
+        return "label" in self._get_kwargs()
+
+
+    def _get_kwargs(self):
         kwargs = dict()
         if self._colour is not None:
             kwargs["c"] = self._colour
@@ -43,8 +56,8 @@ class Line:
             kwargs["alpha"] = self._alpha
         if self._zorder is not None:
             kwargs["zorder"] = self._zorder
-        if self.label is not None:
-            kwargs["label"] = self.label
+        if self._label is not None:
+            kwargs["label"] = self._label
 
         return kwargs
 
@@ -102,16 +115,12 @@ def save_and_close(plot_name, fig, dir_name=None, file_ext="png"):
     )
     file_name = "%s.%s" % (plot_name_clean, file_ext)
     full_path = os.path.join(dir_name, file_name)
+
+    print("Saving image in \"%s\"" % full_path)
     fig.savefig(full_path)
     plt.close(fig)
 
     return full_path
-
-def get_handle(line):
-    kwargs = line.get_kwargs()
-    kwargs.pop("alpha", None)
-    handle = matplotlib.lines.Line2D([], [], **kwargs)
-    return handle
 
 def plot(
     line_list,
@@ -133,7 +142,7 @@ def plot(
         fig, plot_axis = plt.subplots(1, 1, figsize=figsize)
 
     for line in line_list:
-        plot_axis.plot(line.x, line.y, **line.get_kwargs(), figure=fig)
+        line.plot(plot_axis)
 
     plot_axis.grid(True)
     plot_axis.set_title(plot_name)
@@ -153,8 +162,7 @@ def plot(
     if legend_properties is not None:
         legend_axis.legend(
             handles=[
-                get_handle(line)
-                for line in line_list if line.label is not None
+                line.get_handle() for line in line_list if line.has_label()
             ],
             loc="center",
         )
