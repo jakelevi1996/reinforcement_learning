@@ -7,60 +7,31 @@ CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 RESULTS_DIR = os.path.join(CURRENT_DIR, "Results")
 
 class Line:
-    def __init__(
-        self,
-        x,
-        y,
-        colour="b",
-        line_style="-",
-        marker_style=None,
-        alpha=None,
-        zorder=None,
-        label=None,
-        fill=None,
-    ):
+    def __init__(self, x, y, **kwargs):
         if x is None:
             x = range(len(y))
         self._x = x
         self._y = y
-        self.fill = fill
-        self._colour = colour
-        self._line_style = line_style
-        self._marker_style = marker_style
-        self._alpha = alpha
-        self._zorder = zorder
-        self._label = label
+        self._kwargs = kwargs
 
     def plot(self, axis):
-        axis.plot(self._x, self._y, **self._get_kwargs())
-
-    def get_handle(self):
-        kwargs = self._get_kwargs()
-        kwargs.pop("alpha", None)
-        handle = matplotlib.lines.Line2D([], [], **kwargs)
-        return handle
+        axis.plot(self._x, self._y, **self._kwargs)
 
     def has_label(self):
-        return "label" in self._get_kwargs()
+        return "label" in self._kwargs
 
+    def get_handle(self):
+        if "alpha" in self._kwargs:
+            alpha = self._kwargs.pop("alpha")
+            handle = self._get_handle_from_kwargs(self._kwargs)
+            self._kwargs["alpha"] = alpha
+        else:
+            handle = self._get_handle_from_kwargs(self._kwargs)
 
-    def _get_kwargs(self):
-        kwargs = dict()
-        if self._colour is not None:
-            kwargs["c"] = self._colour
-        if self._line_style is not None:
-            kwargs["ls"] = self._line_style
-        if self._marker_style is not None:
-            kwargs["marker"] = self._marker_style
-        if self._alpha is not None:
-            kwargs["alpha"] = self._alpha
-        if self._zorder is not None:
-            kwargs["zorder"] = self._zorder
-        if self._label is not None:
-            kwargs["label"] = self._label
+        return handle
 
-        return kwargs
-
+    def _get_handle_from_kwargs(self, kwargs):
+        return matplotlib.lines.Line2D([], [], **kwargs)
 
 class ColourPicker:
     def __init__(self, num_colours, cyclic=True, cmap_name=None):
