@@ -1,5 +1,11 @@
+import argparse
+import os
+import time
 import numpy as np
 import plotting
+import util
+
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 class KArmedBandit:
     def __init__(self, k=10, rng=None):
@@ -87,110 +93,189 @@ class AgentResult:
         self.mean_reward = np.mean(self.reward_array, axis=0)
         self.std_reward = np.std(self.reward_array, axis=0)
 
-num_steps = 1000
-num_repeats = 100
-agent_result_list = [
-    AgentResult(agent_type, agent_type().get_name(), num_steps, num_repeats)
-    for agent_type in [EpsilonGreedy, EpsilonGreedyConstantStepSize]
-]
-for i in range(num_repeats):
-    if ((i + 1) % 10) == 0:
-        print("Performing repeat %i/%i" % (i + 1, num_repeats), end="\r")
-    env = KArmedBandit()
-    optimal_actions = [
-        a for a, value in enumerate(env._action_values)
-        if value == max(env._action_values)
+class ResultData:
+    def __init__(self, agent_result_list, num_steps, num_repeats):
+        self.agent_result_list = agent_result_list
+        self.num_steps = num_steps
+        self.num_repeats = num_repeats
+
+def main(agent_result_list, args):
+    for i in range(args.num_repeats):
+        if ((i + 1) % 10) == 0:
+            print(
+                "Performing repeat %i/%i..."
+                % (i + 1, args.num_repeats), end="\r"
+            )
+        env = KArmedBandit()
+        optimal_actions = [
+            a for a, value in enumerate(env._action_values)
+            if value == max(env._action_values)
+        ]
+        for agent_result in agent_result_list:
+            agent = agent_result.construcor()
+
+            for j in range(args.num_steps):
+                action = agent.choose_action()
+                reward = env.step(action)
+                agent.update(action, reward)
+                agent_result.reward_array[i, j] = reward
+                if action in optimal_actions:
+                    agent_result.optimal_choice_array[i, j] = 1
+
+def plot(agent_result_list, args):
+    t = np.arange(args.num_steps)
+    mt = 0.5 / args.num_repeats
+    line_props = {"ls": "-", "marker": "", "alpha": 1, "zorder": 20}
+    marker_props = {"ls": "", "marker": "o", "alpha": mt, "zorder": 10}
+    cp = plotting.ColourPicker(len(agent_result_list))
+    for a in agent_result_list:
+        a.get_mean_std_reward()
+    rewards_line_list = [
+        plotting.Line(
+            t,
+            agent_result.reward_array.T,
+            color=cp(i),
+            label="%s (single reward)" % agent_result.name,
+            **marker_props,
+        )
+        for i, agent_result in enumerate(agent_result_list)
     ]
-    for agent_result in agent_result_list:
-        agent = agent_result.construcor()
+    mean_reward_line_list = [
+        plotting.Line(
+            t,
+            agent_result.mean_reward,
+            color=cp(i),
+            label="%s (mean reward)" % agent_result.name,
+            **line_props,
+        )
+        for i, agent_result in enumerate(agent_result_list)
+    ]
+    std_reward_fb_list = [
+        plotting.FillBetween(
+            t,
+            agent_result.mean_reward + agent_result.std_reward,
+            agent_result.mean_reward - agent_result.std_reward,
+            color=cp(i),
+            label="$\\pm\\sigma$",
+            alpha=0.2,
+        )
+        for i, agent_result in enumerate(agent_result_list)
+    ]
+    percent_optimal_choice_line_list = [
+        plotting.Line(
+            t,
+            100 * np.mean(agent_result.optimal_choice_array, axis=0),
+            color=cp(i),
+            label=agent_result.name,
+            **line_props,
+        )
+        for i, agent_result in enumerate(agent_result_list)
+    ]
+    plotting.plot(
+        [
+            line
+            for line_pair in zip(rewards_line_list, mean_reward_line_list)
+            for line in line_pair
+        ],
+        (
+            "Epsilon greedy rewards (%i steps, %i repeats)"
+            % (args.num_steps, args.num_repeats)
+        ),
+        args.results_dir,
+        axis_properties=plotting.AxisProperties(
+            "Time",
+            "Reward",
+            None,
+            [-2, 4],
+        ),
+        legend_properties=plotting.LegendProperties(0.4),
+        figsize=[12, 6],
+    )
+    plotting.plot(
+        [
+            line
+            for line_pair in zip(mean_reward_line_list, std_reward_fb_list)
+            for line in line_pair
+        ],
+        (
+            "Epsilon greedy rewards (mean and variance, %i steps, %i repeats)"
+            % (args.num_steps, args.num_repeats)
+        ),
+        args.results_dir,
+        axis_properties=plotting.AxisProperties(
+            "Time",
+            "Reward",
+            None,
+            [-1, 4],
+        ),
+        legend_properties=plotting.LegendProperties(0.4),
+        figsize=[12, 6],
+    )
+    plotting.plot(
+        percent_optimal_choice_line_list,
+        (
+            "Epsilon greedy percentage of optimal actions "
+            "(%i steps, %i repeats)"
+            % (args.num_steps, args.num_repeats)
+        ),
+        args.results_dir,
+        axis_properties=plotting.AxisProperties(
+            "Time",
+            "% Optimal action",
+            None,
+            [0, 100],
+        ),
+        legend_properties=plotting.LegendProperties(),
+    )
 
-        for j in range(num_steps):
-            action = agent.choose_action()
-            reward = env.step(action)
-            agent.update(action, reward)
-            agent_result.reward_array[i, j] = reward
-            if action in optimal_actions:
-                agent_result.optimal_choice_array[i, j] = 1
+if __name__ == "__main__":
+    # Define CLI using argparse
+    parser = argparse.ArgumentParser(description="Compare bandit algorithms")
 
-print("\nPlotting results...")
-t = np.arange(num_steps)
-mt = 0.5 / num_repeats
-line_props = {"ls": "-", "marker": "", "alpha": 1, "zorder": 20}
-marker_props = {"ls": "", "marker": "o", "alpha": mt, "zorder": 10}
-cp = plotting.ColourPicker(len(agent_result_list))
-for a in agent_result_list:
-    a.get_mean_std_reward()
-rewards_line_list = [
-    plotting.Line(
-        t,
-        agent_result.reward_array.T,
-        color=cp(i),
-        label="%s (single reward)" % agent_result.name,
-        **marker_props,
+    parser.add_argument(
+        "--results_dir",
+        help="Name of directory in which results should be saved",
+        default=None,
+        type=str,
     )
-    for i, agent_result in enumerate(agent_result_list)
-]
-mean_reward_line_list = [
-    plotting.Line(
-        t,
-        agent_result.mean_reward,
-        color=cp(i),
-        label="%s (mean reward)" % agent_result.name,
-        **line_props,
+    parser.add_argument(
+        "--num_steps",
+        help="Number of time steps to simulate for each rollout",
+        default=1000,
+        type=int,
     )
-    for i, agent_result in enumerate(agent_result_list)
-]
-std_reward_fb_list = [
-    plotting.FillBetween(
-        t,
-        agent_result.mean_reward + agent_result.std_reward,
-        agent_result.mean_reward - agent_result.std_reward,
-        color=cp(i),
-        label="$\\pm\\sigma$",
-        alpha=0.2,
+    parser.add_argument(
+        "--num_repeats",
+        help="Number of different environments in which to test each agent",
+        default=100,
+        type=int,
     )
-    for i, agent_result in enumerate(agent_result_list)
-]
-percent_optimal_choice_line_list = [
-    plotting.Line(
-        t,
-        100 * np.mean(agent_result.optimal_choice_array, axis=0),
-        color=cp(i),
-        label=agent_result.name,
-        **line_props,
-    )
-    for i, agent_result in enumerate(agent_result_list)
-]
-plotting.plot(
-    [
-        line
-        for line_pair in zip(rewards_line_list, mean_reward_line_list)
-        for line in line_pair
-    ],
-    "Epsilon greedy rewards",
-    axis_properties=plotting.AxisProperties("Time", "Reward", None, [-2, 4]),
-    legend_properties=plotting.LegendProperties(0.4),
-    figsize=[12, 6],
-)
-plotting.plot(
-    [
-        line
-        for line_pair in zip(mean_reward_line_list, std_reward_fb_list)
-        for line in line_pair
-    ],
-    "Epsilon greedy rewards (mean and variance)",
-    axis_properties=plotting.AxisProperties("Time", "Reward", None, [-1, 4]),
-    legend_properties=plotting.LegendProperties(0.4),
-    figsize=[12, 6],
-)
-plotting.plot(
-    percent_optimal_choice_line_list,
-    "Epsilon greedy percentage of optimal actions",
-    axis_properties=plotting.AxisProperties(
-        "Time",
-        "% Optimal action",
-        None,
-        [0, 100],
-    ),
-    legend_properties=plotting.LegendProperties(),
-)
+
+    # Parse arguments
+    args = parser.parse_args()
+
+    if args.results_dir is None:
+        args.results_dir = os.path.join(
+            CURRENT_DIR,
+            "Results",
+            "Bandit",
+            "%i_repeats_%i_steps" % (args.num_repeats, args.num_steps)
+        )
+    agent_result_list = [
+        AgentResult(
+            agent_type,
+            agent_type().get_name(),
+            args.num_steps,
+            args.num_repeats,
+        )
+        for agent_type in [EpsilonGreedy, EpsilonGreedyConstantStepSize]
+    ]
+    t_start = time.perf_counter()
+
+    main(agent_result_list, args)
+
+    t_total = time.perf_counter() - t_start
+    print("\nFinished main function in %.1fs" % t_total)
+
+    print("Plotting results...")
+    plot(agent_result_list, args)
