@@ -1,5 +1,6 @@
 import os
 import matplotlib.pyplot as plt
+import matplotlib.lines
 import numpy as np
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -42,6 +43,8 @@ class Line:
             kwargs["alpha"] = self._alpha
         if self._zorder is not None:
             kwargs["zorder"] = self._zorder
+        if self.label is not None:
+            kwargs["label"] = self.label
 
         return kwargs
 
@@ -85,6 +88,9 @@ class AxisProperties:
         self.ylim = ylim
         self.tight_layout = tight_layout
 
+class LegendProperties:
+    def __init__(self, width_ratio=0.2):
+        self.width_ratio = width_ratio
 
 def save_and_close(plot_name, fig, dir_name=None, file_ext="png"):
     if dir_name is None:
@@ -106,26 +112,46 @@ def plot(
     plot_name,
     dir_name=None,
     axis_properties=None,
-    figsize=[8, 6],
+    legend_properties=None,
+    figsize=None,
 ):
-    fig = plt.figure(figsize=figsize)
-    for line in line_list:
-        plt.plot(line.x, line.y, **line.get_kwargs(), figure=fig)
+    if legend_properties is not None:
+        if figsize is None:
+            figsize = [10, 6]
+        gridspec_kw = {"width_ratios": [1, legend_properties.width_ratio]}
+        sp = plt.subplots(1, 2, figsize=figsize, gridspec_kw=gridspec_kw)
+        fig, (plot_axis, legend_axis) = sp
+    else:
+        if figsize is None:
+            figsize = [8, 6]
+        fig, plot_axis = plt.subplots(1, 1, figsize=figsize)
 
-    axis = fig.axes[0]
-    axis.grid(True)
-    axis.set_title(plot_name)
+    for line in line_list:
+        plot_axis.plot(line.x, line.y, **line.get_kwargs(), figure=fig)
+
+    plot_axis.grid(True)
+    plot_axis.set_title(plot_name)
 
     if axis_properties is not None:
         if axis_properties.tight_layout:
             fig.tight_layout()
         if axis_properties.xlabel is not None:
-            axis.set_xlabel(axis_properties.xlabel)
+            plot_axis.set_xlabel(axis_properties.xlabel)
         if axis_properties.ylabel is not None:
-            axis.set_ylabel(axis_properties.ylabel)
+            plot_axis.set_ylabel(axis_properties.ylabel)
         if axis_properties.xlim is not None:
-            axis.set_xlim(axis_properties.xlim)
+            plot_axis.set_xlim(axis_properties.xlim)
         if axis_properties.ylim is not None:
-            axis.set_ylim(axis_properties.ylim)
+            plot_axis.set_ylim(axis_properties.ylim)
+
+    if legend_properties is not None:
+        legend_axis.legend(
+            handles=[
+                matplotlib.lines.Line2D([], [], **line.get_kwargs())
+                for line in line_list if line.label is not None
+            ],
+            loc="center",
+        )
+        legend_axis.axis("off")
 
     save_and_close(plot_name, fig, dir_name)
