@@ -36,7 +36,10 @@ class EpsilonGreedy:
                 for a, value in enumerate(self._value_estimates)
                 if value == optimal_value
             ]
-            action = self._rng.choice(optimal_action_list)
+            if len(optimal_action_list) == 1:
+                action = optimal_action_list[0]
+            else:
+                action = self._rng.choice(optimal_action_list)
         else:
             action = self._rng.integers(self._value_estimates.size)
 
