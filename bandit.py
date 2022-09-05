@@ -37,6 +37,10 @@ class EpsilonGreedy:
         else:
             self._rng = rng
 
+    def get_name(self):
+        name = "$\\varepsilon$-greedy$(\\varepsilon=%.2f)$" % self._epsilon
+        return name
+
     def choose_action(self):
         is_greedy = (self._rng.random() > self._epsilon)
         if is_greedy:
@@ -65,16 +69,24 @@ class EpsilonGreedyConstantStepSize(EpsilonGreedy):
             self._step_size * (reward - self._value_estimates[action])
         )
 
+    def get_name(self):
+        name = (
+            "$\\varepsilon$-greedy$(\\varepsilon=%.2f,\\alpha=%.2f)$"
+            % (self._epsilon, self._step_size)
+        )
+        return name
+
 class AgentResult:
-    def __init__(self, agent_type, num_steps, num_repeats):
+    def __init__(self, agent_type, name, num_steps, num_repeats):
         self.construcor = agent_type
+        self.name = name
         self.reward_array = np.zeros([num_repeats, num_steps])
         self.optimal_choice_array = np.zeros([num_repeats, num_steps])
 
 num_steps = 1000
 num_repeats = 100
 agent_result_list = [
-    AgentResult(agent_type, num_steps, num_repeats)
+    AgentResult(agent_type, agent_type().get_name(), num_steps, num_repeats)
     for agent_type in [EpsilonGreedy, EpsilonGreedyConstantStepSize]
 ]
 for i in range(num_repeats):
