@@ -107,6 +107,12 @@ def save_and_close(plot_name, fig, dir_name=None, file_ext="png"):
 
     return full_path
 
+def get_handle(line):
+    kwargs = line.get_kwargs()
+    kwargs.pop("alpha", None)
+    handle = matplotlib.lines.Line2D([], [], **kwargs)
+    return handle
+
 def plot(
     line_list,
     plot_name,
@@ -147,7 +153,7 @@ def plot(
     if legend_properties is not None:
         legend_axis.legend(
             handles=[
-                matplotlib.lines.Line2D([], [], **line.get_kwargs())
+                get_handle(line)
                 for line in line_list if line.label is not None
             ],
             loc="center",
