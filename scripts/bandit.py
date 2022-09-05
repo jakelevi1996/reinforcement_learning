@@ -176,6 +176,12 @@ if __name__ == "__main__":
         type=str,
     )
     parser.add_argument(
+        "--no_plot",
+        help="If this argument is present, no output plots are produced (this "
+        "is useful for example when profiling the main function)",
+        action="store_true",
+    )
+    parser.add_argument(
         "--num_steps",
         help="Number of time steps to simulate for each rollout",
         default=1000,
@@ -234,5 +240,6 @@ if __name__ == "__main__":
             t_total = time.perf_counter() - t_start
             print("\nFinished main function in %.1fs" % t_total)
 
-    print("Plotting results...")
-    plot(agent_result_list, args)
+    if not args.no_plot:
+        print("Plotting results...")
+        plot(agent_result_list, args)
