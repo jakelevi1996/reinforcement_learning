@@ -93,12 +93,6 @@ class AgentResult:
         self.mean_reward = np.mean(self.reward_array, axis=0)
         self.std_reward = np.std(self.reward_array, axis=0)
 
-class ResultData:
-    def __init__(self, agent_result_list, num_steps, num_repeats):
-        self.agent_result_list = agent_result_list
-        self.num_steps = num_steps
-        self.num_repeats = num_repeats
-
 def main(agent_result_list, args):
     for i in range(args.num_repeats):
         if ((i + 1) % 10) == 0:
@@ -272,9 +266,7 @@ if __name__ == "__main__":
     # args.num_repeats need to be loaded before args.results_dir is set
     if args.load_data:
         result_data = util.Result(args.filename).load()
-        agent_result_list = result_data.agent_result_list
-        args.num_steps = result_data.num_steps
-        args.num_repeats = result_data.num_repeats
+        agent_result_list, args.num_steps, args.num_repeats = result_data
 
     if args.results_dir is None:
         args.results_dir = os.path.join(
@@ -296,11 +288,7 @@ if __name__ == "__main__":
             )
             for agent_type in [EpsilonGreedy, EpsilonGreedyConstantStepSize]
         ]
-        result_data = ResultData(
-            agent_result_list,
-            args.num_steps,
-            args.num_repeats,
-        )
+        result_data = [agent_result_list, args.num_steps, args.num_repeats]
         result = util.Result(args.filename, result_data)
         with result.get_results_saving_context():
             t_start = time.perf_counter()
