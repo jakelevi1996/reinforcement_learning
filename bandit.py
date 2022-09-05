@@ -99,23 +99,25 @@ for i in range(num_repeats):
 print("\nPlotting results...")
 t = np.arange(num_steps)
 t_tiled = np.tile(t.reshape(1, -1), [num_repeats, 1])
-line_props = ["b", "-", "", 1, 20]
-marker_props = ["b", "", "o", 0.5 / num_repeats, 10]
+line_props = ["-", "", 1, 20]
+marker_props = ["", "o", 0.5 / num_repeats, 10]
+cp = plotting.ColourPicker(len(agent_result_list))
 rewards_line_list = [
     line
-    for a in agent_result_list
+    for i, a in enumerate(agent_result_list)
     for line in [
-        plotting.Line(t_tiled, a.reward_array, *marker_props),
-        plotting.Line(t, np.mean(a.reward_array, axis=0), *line_props),
+        plotting.Line(t_tiled, a.reward_array, cp(i), *marker_props),
+        plotting.Line(t, np.mean(a.reward_array, axis=0), cp(i), *line_props),
     ]
 ]
 percent_optimal_choice_line_list = [
     plotting.Line(
         t,
         100 * np.mean(agent_result.optimal_choice_array, axis=0),
+        cp(i),
         *line_props,
     )
-    for agent_result in agent_result_list
+    for i, agent_result in enumerate(agent_result_list)
 ]
 plotting.plot(
     rewards_line_list,

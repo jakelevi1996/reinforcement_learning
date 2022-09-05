@@ -1,5 +1,6 @@
 import os
 import matplotlib.pyplot as plt
+import numpy as np
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 RESULTS_DIR = os.path.join(CURRENT_DIR, "Results")
@@ -17,6 +18,8 @@ class Line:
         label=None,
         fill=None,
     ):
+        if x is None:
+            x = range(len(y))
         self.x = x
         self.y = y
         self.label = label
@@ -44,8 +47,23 @@ class Line:
 
 
 class ColourPicker:
-    def __init__(self, cmap=None):
-        self._cmap = cmap
+    def __init__(self, num_colours, cyclic=True, cmap_name=None):
+        if cmap_name is None:
+            if cyclic:
+                cmap_name = "hsv"
+            else:
+                cmap_name = "cool"
+        if cyclic:
+            endpoint = False
+        else:
+            endpoint = True
+
+        cmap = plt.get_cmap(cmap_name)
+        cmap_sample_points = np.linspace(0, 1, num_colours, endpoint)
+        self._colours = [cmap(i) for i in cmap_sample_points]
+
+    def __call__(self, colour_ind):
+        return self._colours[colour_ind]
 
 class SubplotProperties:
     def __init__(self, num_x, num_y):
