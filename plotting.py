@@ -1,6 +1,7 @@
 import os
 import matplotlib.pyplot as plt
 import matplotlib.lines
+import matplotlib.patches
 import numpy as np
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -31,6 +32,21 @@ class Line:
 
     def _get_handle_from_kwargs(self, kwargs):
         return matplotlib.lines.Line2D([], [], **kwargs)
+
+class FillBetween(Line):
+    def __init__(self, x, y1, y2, **kwargs):
+        self._x = x
+        self._y1 = y1
+        self._y2 = y2
+        self._kwargs = kwargs
+        self.has_label = ("label" in self._kwargs)
+
+    def plot(self, axis):
+        axis.fill_between(self._x, self._y1, self._y2, **self._kwargs)
+
+    def get_handle(self):
+        if self.has_label:
+            return matplotlib.patches.Patch(**self._kwargs)
 
 class ColourPicker:
     def __init__(self, num_colours, cyclic=True, cmap_name=None):
