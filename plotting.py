@@ -111,7 +111,7 @@ def save_and_close(plot_name, fig, dir_name=None, file_ext="png"):
     if not os.path.isdir(dir_name):
         os.makedirs(dir_name)
     plot_name_clean = "".join(
-        c for c in plot_name if c.isalnum() or c in " -_.,"
+        c for c in plot_name.replace(" ", "_") if c.isalnum() or c in "-_.,"
     )
     file_name = "%s.%s" % (plot_name_clean, file_ext)
     full_path = os.path.join(dir_name, file_name)
