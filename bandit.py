@@ -110,7 +110,6 @@ for i in range(num_repeats):
 
 print("\nPlotting results...")
 t = np.arange(num_steps)
-t_tiled = np.tile(t.reshape(1, -1), [num_repeats, 1])
 mt = 0.5 / num_repeats
 line_props = {"ls": "-", "marker": "", "alpha": 1, "zorder": 20}
 marker_props = {"ls": "", "marker": "o", "alpha": mt, "zorder": 10}
@@ -120,8 +119,8 @@ rewards_line_list = [
     for i, agent_result in enumerate(agent_result_list)
     for line in [
         plotting.Line(
-            t_tiled,
-            agent_result.reward_array,
+            t,
+            agent_result.reward_array.T,
             color=cp(i),
             label="%s (single reward)" % agent_result.name,
             **marker_props,
