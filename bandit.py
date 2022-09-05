@@ -233,17 +233,18 @@ if __name__ == "__main__":
         type=str,
     )
     parser.add_argument(
-        "--filename",
-        help="Filename to/from which results should be saved/loaded, "
-        "depending on if the --load_data argument is present",
+        "--save_data_filename",
+        help="Filename in which new results should be saved (this argument is "
+        "ignored if --load_data_filename is present)",
         default=None,
         type=str,
     )
     parser.add_argument(
-        "--load_data",
-        help="If present, do not perform any experiments, and instead load "
-        "results data from file",
-        action="store_true",
+        "--load_data_filename",
+        help="If present, do not perform any new experiments, and instead "
+        "load data from the specified filename and plot the results",
+        default=None,
+        type=str,
     )
     parser.add_argument(
         "--num_steps",
@@ -264,8 +265,8 @@ if __name__ == "__main__":
     # If we're loading data from file, do so now, because in case
     # args.results_dir hasn't been provided, args.num_steps and
     # args.num_repeats need to be loaded before args.results_dir is set
-    if args.load_data:
-        result_data = util.Result(args.filename).load()
+    if args.load_data_filename is not None:
+        result_data = util.Result(args.load_data_filename).load()
         agent_result_list, args.num_steps, args.num_repeats = result_data
 
     if args.results_dir is None:
@@ -275,10 +276,13 @@ if __name__ == "__main__":
             "Bandit",
             "%i_repeats_%i_steps" % (args.num_repeats, args.num_steps)
         )
-    if args.filename is None:
-        args.filename = os.path.join(args.results_dir, "bandit_data.pkl")
 
-    if not args.load_data:
+    if args.load_data_filename is None:
+        if args.save_data_filename is None:
+            args.save_data_filename = os.path.join(
+                args.results_dir,
+                "bandit_data.pkl",
+            )
         agent_result_list = [
             AgentResult(
                 agent_type,
@@ -289,7 +293,7 @@ if __name__ == "__main__":
             for agent_type in [EpsilonGreedy, EpsilonGreedyConstantStepSize]
         ]
         result_data = [agent_result_list, args.num_steps, args.num_repeats]
-        result = util.Result(args.filename, result_data)
+        result = util.Result(args.save_data_filename, result_data)
         with result.get_results_saving_context():
             t_start = time.perf_counter()
 
