@@ -24,10 +24,6 @@ class EpsilonGreedy(_BanditAgent):
         else:
             self._rng = rng
 
-    def get_name(self):
-        name = "$\\varepsilon$-greedy$(\\varepsilon=%.2f)$" % self._epsilon
-        return name
-
     def choose_action(self):
         is_greedy = (self._rng.random() > self._epsilon)
         if is_greedy:
@@ -52,6 +48,10 @@ class EpsilonGreedy(_BanditAgent):
             (reward - self._value_estimates[action])
             / self._num_action_tries[action]
         )
+
+    def get_name(self):
+        name = "$\\varepsilon$-greedy$(\\varepsilon=%.2f)$" % self._epsilon
+        return name
 
 class EpsilonGreedyConstantStepSize(EpsilonGreedy):
     def update(self, action, reward):
