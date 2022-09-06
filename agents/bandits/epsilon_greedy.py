@@ -1,6 +1,7 @@
 import numpy as np
+from agents.bandits.bandit_agent import _BanditAgent
 
-class EpsilonGreedy:
+class EpsilonGreedy(_BanditAgent):
     def __init__(
         self,
         epsilon=0.1,
