@@ -25,9 +25,9 @@ The K-armed bandit is arguably the simplest form of reinforcement learning probl
 
 ### Profiling
 
-It is possible to profile the `bandit.py` script and save the profiling information to a file with a unique timestamped filename with the following commands:
+It is possible to profile the `compare_bandits.py` script and save the profiling information to a file with a unique timestamped filename with the following commands:
 
 ```
-python -m cProfile -o .profile ./scripts/bandit.py --no_plot --no_save
+python -m cProfile -o .profile ./scripts/compare_bandits.py --no_plot --no_save
 python -c "import pstats; p = pstats.Stats('.profile'); p.sort_stats('cumtime'); p.print_stats(50)" > ".profile $(date '+%Y-%m-%d %H-%M-%S').txt"
 ```
