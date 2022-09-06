@@ -234,6 +234,7 @@ if __name__ == "__main__":
             for agent_type in [
                 agents.bandits.EpsilonGreedy,
                 agents.bandits.EpsilonGreedyConstantStepSize,
+                agents.bandits.GradientBandit,
             ]
         ]
         result_data = [agent_result_list, args.num_steps, args.num_repeats]
