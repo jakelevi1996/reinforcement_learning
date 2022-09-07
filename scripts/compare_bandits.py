@@ -94,6 +94,28 @@ def plot(agent_result_list, args):
         )
         for i, agent_result in enumerate(agent_result_list)
     ]
+    mean_reward_list = [
+        np.mean(agent_result.reward_array)
+        for agent_result in agent_result_list
+    ]
+    mean_reward_bar_list = [
+        plotting.Bar(
+            agent_result.name,
+            mean_reward_list[i],
+            color=cp(i),
+            label=agent_result.name,
+            zorder=20,
+        )
+        for i, agent_result in enumerate(agent_result_list)
+    ]
+    max_mean_reward = max(mean_reward_list)
+    argmax_reward = mean_reward_list.index(max_mean_reward)
+    max_mean_reward_hline = plotting.HVLine(
+        h=max_mean_reward,
+        ls="--",
+        color=cp(argmax_reward),
+        label="Max reward (%s)" % agent_result_list[argmax_reward].name,
+    )
     plotting.plot(
         [
             line
@@ -149,6 +171,22 @@ def plot(agent_result_list, args):
             [0, 100],
         ),
         legend_properties=plotting.LegendProperties(),
+    )
+    plotting.plot(
+        mean_reward_bar_list + [max_mean_reward_hline],
+        (
+            "Mean rewards "
+            "(%i steps, %i repeats)"
+            % (args.num_steps, args.num_repeats)
+        ),
+        args.results_dir,
+        axis_properties=plotting.AxisProperties(
+            "Agent type",
+            "Mean reward",
+            rotate_xticks=True,
+        ),
+        legend_properties=plotting.LegendProperties(0.4),
+        figsize=[12, 6],
     )
 
 if __name__ == "__main__":
