@@ -183,7 +183,7 @@ def plot(agent_result_list, args):
         axis_properties=plotting.AxisProperties(
             "Agent type",
             "Mean reward",
-            rotate_xticks=True,
+            rotate_xticklabels=True,
         ),
         legend_properties=plotting.LegendProperties(0.4),
         figsize=[12, 6],
