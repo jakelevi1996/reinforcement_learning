@@ -101,6 +101,8 @@ class AxisProperties:
         ylabel=None,
         xlim=None,
         ylim=None,
+        log_xscale=False,
+        log_yscale=False,
         tight_layout=True,
         rotate_xticklabels=False,
     ):
@@ -108,6 +110,8 @@ class AxisProperties:
         self.ylabel = ylabel
         self.xlim = xlim
         self.ylim = ylim
+        self.log_xscale = log_xscale
+        self.log_yscale = log_yscale
         self.tight_layout = tight_layout
         self.rotate_xticklabels = rotate_xticklabels
 
@@ -175,6 +179,10 @@ def plot(
             plot_axis.set_xlim(axis_properties.xlim)
         if axis_properties.ylim is not None:
             plot_axis.set_ylim(axis_properties.ylim)
+        if axis_properties.log_xscale:
+            plot_axis.set_xscale("log")
+        if axis_properties.log_yscale:
+            plot_axis.set_yscale("log")
         if axis_properties.rotate_xticklabels:
             for xtl in plot_axis.get_xticklabels():
                 xtl.set(rotation=-45, ha="left")
