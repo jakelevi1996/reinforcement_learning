@@ -101,7 +101,7 @@ class AxisProperties:
         ylabel=None,
         xlim=None,
         ylim=None,
-        tight_layout=False,
+        tight_layout=True,
     ):
         self.xlabel = xlabel
         self.ylabel = ylabel
@@ -155,18 +155,6 @@ def plot(
     plot_axis.grid(True)
     plot_axis.set_title(plot_name)
 
-    if axis_properties is not None:
-        if axis_properties.tight_layout:
-            fig.tight_layout()
-        if axis_properties.xlabel is not None:
-            plot_axis.set_xlabel(axis_properties.xlabel)
-        if axis_properties.ylabel is not None:
-            plot_axis.set_ylabel(axis_properties.ylabel)
-        if axis_properties.xlim is not None:
-            plot_axis.set_xlim(axis_properties.xlim)
-        if axis_properties.ylim is not None:
-            plot_axis.set_ylim(axis_properties.ylim)
-
     if legend_properties is not None:
         legend_axis.legend(
             handles=[
@@ -175,5 +163,17 @@ def plot(
             loc="center",
         )
         legend_axis.axis("off")
+
+    if axis_properties is not None:
+        if axis_properties.xlabel is not None:
+            plot_axis.set_xlabel(axis_properties.xlabel)
+        if axis_properties.ylabel is not None:
+            plot_axis.set_ylabel(axis_properties.ylabel)
+        if axis_properties.xlim is not None:
+            plot_axis.set_xlim(axis_properties.xlim)
+        if axis_properties.ylim is not None:
+            plot_axis.set_ylim(axis_properties.ylim)
+        if axis_properties.tight_layout:
+            fig.tight_layout()
 
     save_and_close(plot_name, fig, dir_name)
