@@ -235,6 +235,8 @@ if __name__ == "__main__":
                 agents.bandits.EpsilonGreedy,
                 agents.bandits.EpsilonGreedyConstantStepSize,
                 agents.bandits.GradientBandit,
+                agents.bandits.BayesianSamplerValuePrior,
+                agents.bandits.BayesianSamplerBroadPrior,
             ]
         ]
         result_data = [agent_result_list, args.num_steps, args.num_repeats]
