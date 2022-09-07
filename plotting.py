@@ -102,12 +102,14 @@ class AxisProperties:
         xlim=None,
         ylim=None,
         tight_layout=True,
+        rotate_xticklabels=False,
     ):
         self.xlabel = xlabel
         self.ylabel = ylabel
         self.xlim = xlim
         self.ylim = ylim
         self.tight_layout = tight_layout
+        self.rotate_xticklabels = rotate_xticklabels
 
 class LegendProperties:
     def __init__(self, width_ratio=0.2):
@@ -173,6 +175,9 @@ def plot(
             plot_axis.set_xlim(axis_properties.xlim)
         if axis_properties.ylim is not None:
             plot_axis.set_ylim(axis_properties.ylim)
+        if axis_properties.rotate_xticklabels:
+            for xtl in plot_axis.get_xticklabels():
+                xtl.set(rotation=-45, ha="left")
         if axis_properties.tight_layout:
             fig.tight_layout()
 
