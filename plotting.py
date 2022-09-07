@@ -59,7 +59,7 @@ class HVLine(Line):
         if self._h is not None:
             axis.axhline(self._h, **self._kwargs)
         if self._v is not None:
-            axis.avhline(self._v, **self._kwargs)
+            axis.axvline(self._v, **self._kwargs)
 
 class ColourPicker:
     def __init__(self, num_colours, cyclic=True, cmap_name=None):
