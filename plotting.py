@@ -61,6 +61,15 @@ class HVLine(Line):
         if self._v is not None:
             axis.axvline(self._v, **self._kwargs)
 
+class Bar(Line):
+    def __init__(self, x, height, **kwargs):
+        self._x = x
+        self._height = height
+        self._kwargs = kwargs
+
+    def plot(self, axis):
+        axis.bar(self._x, self._height, **self._kwargs)
+
 class ColourPicker:
     def __init__(self, num_colours, cyclic=True, cmap_name=None):
         if cmap_name is None:
