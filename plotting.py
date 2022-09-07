@@ -61,7 +61,7 @@ class HVLine(Line):
         if self._v is not None:
             axis.axvline(self._v, **self._kwargs)
 
-class Bar(Line):
+class Bar(FillBetween):
     def __init__(self, x, height, **kwargs):
         self._x = x
         self._height = height
