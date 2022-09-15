@@ -30,12 +30,14 @@ class ParamSweeper:
         n_sigma=1,
         higher_is_better=True,
         output_file=None,
+        print_every=1,
     ):
         self._experiment = experiment
         self._n_repeats = n_repeats
         self._n_sigma = n_sigma
         self._higher_is_better = higher_is_better
         self._file = output_file
+        self._print_every = print_every
 
         self._param_list = list()
         self._params_to_results_dict = dict()
@@ -173,10 +175,11 @@ class ParamSweeper:
             with self._context:
                 score = self._experiment.run(**experiment_param_dict)
                 results_list.append(score)
-                self._print(
-                    "Repeat %i/%i, result is %s"
-                    % (i + 1, self._n_repeats, score)
-                )
+                if (i % self._print_every) == 0:
+                    self._print(
+                        "Repeat %i/%i, result is %s"
+                        % (i, self._n_repeats, score)
+                    )
 
         return results_list
 
