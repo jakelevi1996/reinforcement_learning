@@ -18,16 +18,20 @@ class Parameter:
             % (self.name, self.default, self.val_range)
         )
 
+class Experiment:
+    def run(self, **kwargs):
+        raise NotImplementedError()
+
 class ParamSweeper:
     def __init__(
         self,
-        func,
+        experiment,
         n_repeats=5,
         n_sigma=1,
         higher_is_better=True,
         output_file=None,
     ):
-        self._func = func
+        self._experiment = experiment
         self._n_repeats = n_repeats
         self._n_sigma = n_sigma
         self._higher_is_better = higher_is_better
@@ -114,10 +118,6 @@ class ParamSweeper:
                 optimal_h = mean_default - (self._n_sigma * std_default)
             else:
                 optimal_h = mean_default + (self._n_sigma * std_default)
-            plot_name = (
-                "Parameter sweep results, varying parameter %s"
-                % param.name
-            )
             all_results_line = plotting.Line(
                 all_results_x,
                 all_results_y,
@@ -154,7 +154,7 @@ class ParamSweeper:
             )
             plotting.plot(
                 [all_results_line, mean_line, std_line, default_line],
-                plot_name,
+                "Parameter sweep results, varying parameter %s" % param.name,
                 output_dir,
                 legend_properties=plotting.LegendProperties(),
                 axis_properties=plotting.AxisProperties(
@@ -171,7 +171,7 @@ class ParamSweeper:
         results_list = []
         for i in range(self._n_repeats):
             with self._context:
-                score = self._func(**experiment_param_dict)
+                score = self._experiment.run(**experiment_param_dict)
                 results_list.append(score)
                 self._print(
                     "Repeat %i/%i, result is %s"
