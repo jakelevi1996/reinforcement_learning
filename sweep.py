@@ -96,7 +96,7 @@ class ParamSweeper:
 
         self._print("Best parameters found:")
         for param in self._param_list:
-            self._print("> %10r = %s" % (param.name, param.default))
+            self._print("> %20r = %s" % (param.name, param.default))
 
     def sweep_parameter(self, parameter, update_parameters=True):
         param_dict = {param.name: param.default for param in self._param_list}
@@ -197,7 +197,7 @@ class ParamSweeper:
     def _run_experiment(self, experiment_param_dict):
         self._print("Running an experiment with the following parameters:")
         for name, value in experiment_param_dict.items():
-            self._print("| %10r = %r" % (name, value))
+            self._print("| %20r = %r" % (name, value))
 
         results_list = []
         for i in range(self._n_repeats):
