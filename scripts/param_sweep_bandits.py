@@ -45,10 +45,15 @@ class TestEpsilonGreedyConstantStepSize(_TestBanditAgent):
         )
         return agent
 
+class TestGradientBandit(_TestBanditAgent):
+    def get_agent(self, step_size):
+        return agents.bandits.GradientBandit(step_size)
+
 def main(args):
     filename_list_list = [
         test_epsilon_greedy(args),
         test_epsilon_greedy_constant_step_size(args),
+        test_gradient_bandit(args),
     ]
     print("\nPlots saved with the following filenames:\n")
     for filename_list in filename_list_list:
@@ -115,6 +120,33 @@ def test_epsilon_greedy_constant_step_size(args):
     experiment_name = "Epsilon greedy (constant step size)"
     return param_sweeper.plot(experiment_name, results_dir)
 
+def test_gradient_bandit(args):
+    seeder = util.Seeder()
+    experiment = TestGradientBandit(args.num_steps, seeder)
+    param_sweeper = sweep.ParamSweeper(
+        experiment,
+        n_repeats=args.num_repeats,
+        print_every=50,
+    )
+
+    param_sweeper.add_parameter(
+        sweep.Parameter(
+            "step_size",
+            0.1,
+            val_lo=0.01,
+            val_hi=1,
+            val_num=args.num_values,
+            log_space=True,
+        )
+    )
+    param_sweeper.find_best_parameters()
+    results_dir = os.path.join(
+        args.results_dir,
+        "Gradient_bandit",
+    )
+    experiment_name = "Gradient bandit"
+    return param_sweeper.plot(experiment_name, results_dir)
+
 if __name__ == "__main__":
 
     # Define CLI using argparse
@@ -154,7 +186,8 @@ if __name__ == "__main__":
             "Results",
             "Param_sweeps",
             "Bandit",
-            "%i_repeats_%i_steps" % (args.num_repeats, args.num_steps)
+            "%i_repeats_%i_steps_%i_values"
+            % (args.num_repeats, args.num_steps, args.num_values),
         )
 
     util.time_func(main, args)
