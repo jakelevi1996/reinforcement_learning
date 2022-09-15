@@ -47,10 +47,13 @@ class ParamSweeper:
         while True:
             self._has_updated_any_parameters = False
             for parameter in self._param_list:
-                self._print("Sweeping over parameter %r..." % parameter.name)
+                self._print(
+                    "\nSweeping over parameter %r..."
+                    % parameter.name
+                )
                 self.sweep_parameter(parameter, update_parameters=True)
             if not self._has_updated_any_parameters:
-                self._print("Finished sweeping through parameters")
+                self._print("\nFinished sweeping through parameters")
                 break
 
         self._print("Best parameters found:")
@@ -71,14 +74,13 @@ class ParamSweeper:
             else:
                 results_list = self._params_to_results_dict[param_tuple]
 
-            if len(results_list) > 0:
-                val_results_dict[val] = results_list
+            val_results_dict[val] = results_list
 
         if update_parameters:
             best_param_val = self._get_best_param_val(val_results_dict)
             if parameter.default != best_param_val:
                 self._print(
-                    "Parameter %r default value changing from %s to %s"
+                    "\nParameter %r default value changing from %s to %s"
                     % (parameter.name, parameter.default, best_param_val),
                 )
                 parameter.default = best_param_val
@@ -93,7 +95,10 @@ class ParamSweeper:
             if param.val_results_dict is None:
                 continue
             val_results_dict = param.val_results_dict
-            val_list = param.val_range
+            val_list = [
+                val for val in param.val_range
+                if len(val_results_dict[val]) > 0
+            ]
             results_list_list = [val_results_dict[val] for val in val_list]
             mean = np.array([np.mean(x) for x in results_list_list])
             std  = np.array([np.std( x) for x in results_list_list])
@@ -160,22 +165,27 @@ class ParamSweeper:
         return results_list
 
     def _get_best_param_val(self, val_results_dict):
+        non_empty_results_dict = {
+            val: results_list
+            for val, results_list in val_results_dict.items()
+            if len(results_list) > 0
+        }
         if self._higher_is_better:
             score_dict = {
                 val: (np.mean(results) - self._n_sigma * np.std(results))
-                for val, results in val_results_dict.items()
+                for val, results in non_empty_results_dict.items()
             }
             best_param_val = max(
-                val_results_dict.keys(),
+                non_empty_results_dict.keys(),
                 key=lambda val: score_dict[val],
             )
         else:
             score_dict = {
                 val: (np.mean(results) + self._n_sigma * np.std(results))
-                for val, results in val_results_dict.items()
+                for val, results in non_empty_results_dict.items()
             }
             best_param_val = min(
-                val_results_dict.keys(),
+                non_empty_results_dict.keys(),
                 key=lambda val: score_dict[val],
             )
 
