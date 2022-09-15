@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import matplotlib.lines
 import matplotlib.patches
 import numpy as np
+import util
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 RESULTS_DIR = os.path.join(CURRENT_DIR, "Results")
@@ -124,10 +125,7 @@ def save_and_close(plot_name, fig, dir_name=None, file_ext="png"):
         dir_name = RESULTS_DIR
     if not os.path.isdir(dir_name):
         os.makedirs(dir_name)
-    plot_name_clean = "".join(
-        c for c in plot_name.replace(" ", "_") if c.isalnum() or c in "-_.,"
-    )
-    file_name = "%s.%s" % (plot_name_clean, file_ext)
+    file_name = "%s.%s" % (util.clean_filename(plot_name), file_ext)
     full_path = os.path.join(dir_name, file_name)
 
     print("Saving image in \"%s\"" % full_path)

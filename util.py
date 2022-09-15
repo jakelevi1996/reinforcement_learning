@@ -41,3 +41,10 @@ class BlankContext:
 
     def __exit__(self, *args):
         return
+
+def clean_filename(filename_str, allowed_non_alnum_chars="-_.,"):
+    filename_str_clean = "".join(
+        c if (c.isalnum() or c in allowed_non_alnum_chars) else "_"
+        for c in str(filename_str)
+    )
+    return filename_str_clean
