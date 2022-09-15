@@ -2,6 +2,7 @@ import os
 import pickle
 import traceback
 import datetime
+import time
 
 class Result:
     def __init__(self, filename, data=None):
@@ -78,6 +79,13 @@ class Seeder:
 
         self._used_seeds.add(seed)
         return seed
+
+def time_func(func, *args, **kwargs):
+    t_start = time.perf_counter()
+    func(*args, **kwargs)
+    t_total = time.perf_counter() - t_start
+
+    print("\nFinished %r function in %.1fs" % (func.__name__, t_total))
 
 def clean_filename(filename_str, allowed_non_alnum_chars="-_.,"):
     filename_str_clean = "".join(
