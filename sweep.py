@@ -100,6 +100,12 @@ class ParamSweeper:
                 if len(val_results_dict[val]) > 0
             ]
             results_list_list = [val_results_dict[val] for val in val_list]
+            all_results_pairs = [
+                [val, result]
+                for val, result_list in val_results_dict.items()
+                for result in result_list
+            ]
+            all_results_x, all_results_y = zip(*all_results_pairs)
             mean = np.array([np.mean(x) for x in results_list_list])
             std  = np.array([np.std( x) for x in results_list_list])
             mean_default = np.mean(val_results_dict[param.default])
@@ -111,6 +117,16 @@ class ParamSweeper:
             plot_name = (
                 "Parameter sweep results, varying parameter %s"
                 % param.name
+            )
+            all_results_line = plotting.Line(
+                all_results_x,
+                all_results_y,
+                c="b",
+                ls="",
+                marker="o",
+                alpha=0.3,
+                label="Result",
+                zorder=20,
             )
             mean_line = plotting.Line(
                 val_list,
@@ -137,7 +153,7 @@ class ParamSweeper:
                 zorder=40,
             )
             plotting.plot(
-                [mean_line, std_line, default_line],
+                [all_results_line, mean_line, std_line, default_line],
                 plot_name,
                 output_dir,
                 legend_properties=plotting.LegendProperties(),
