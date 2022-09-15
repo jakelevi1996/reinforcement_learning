@@ -67,6 +67,18 @@ class ExceptionContext:
         if self._file is not None:
             print(s, file=self._file)
 
+class Seeder:
+    def __init__(self):
+        self._used_seeds = set()
+
+    def get_seed(self, *args):
+        seed = sum(ord(c) for c in str(args))
+        while seed in self._used_seeds:
+            seed += 1
+
+        self._used_seeds.add(seed)
+        return seed
+
 def clean_filename(filename_str, allowed_non_alnum_chars="-_.,"):
     filename_str_clean = "".join(
         c if (c.isalnum() or c in allowed_non_alnum_chars) else "_"
