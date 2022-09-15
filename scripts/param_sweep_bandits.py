@@ -75,7 +75,7 @@ def test_epsilon_greedy(args):
     )
     param_sweeper.find_best_parameters()
     results_dir = os.path.join(args.results_dir, "Epsilon_greedy")
-    return param_sweeper.plot(results_dir)
+    return param_sweeper.plot("Epsilon greedy", results_dir)
 
 def test_epsilon_greedy_constant_step_size(args):
     seeder = util.Seeder()
@@ -109,7 +109,8 @@ def test_epsilon_greedy_constant_step_size(args):
         args.results_dir,
         "Epsilon_greedy_constant_step_size",
     )
-    return param_sweeper.plot(results_dir)
+    experiment_name = "Epsilon greedy (constant step size)"
+    return param_sweeper.plot(experiment_name, results_dir)
 
 if __name__ == "__main__":
 
