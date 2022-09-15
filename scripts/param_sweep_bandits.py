@@ -70,6 +70,7 @@ def test_epsilon_greedy(args):
             0.1,
             val_lo=0.01,
             val_hi=0.6,
+            val_num=args.num_values,
             log_space=True,
         )
     )
@@ -92,6 +93,7 @@ def test_epsilon_greedy_constant_step_size(args):
             0.1,
             val_lo=0.01,
             val_hi=0.6,
+            val_num=args.num_values,
             log_space=True,
         )
     )
@@ -101,6 +103,7 @@ def test_epsilon_greedy_constant_step_size(args):
             0.1,
             val_lo=0.01,
             val_hi=1,
+            val_num=args.num_values,
             log_space=True,
         )
     )
@@ -133,6 +136,12 @@ if __name__ == "__main__":
         "--num_repeats",
         help="Number of different environments in which to test each agent",
         default=100,
+        type=int,
+    )
+    parser.add_argument(
+        "--num_values",
+        help="Number of different values to test for each parameter",
+        default=20,
         type=int,
     )
 
