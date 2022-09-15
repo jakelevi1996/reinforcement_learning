@@ -156,7 +156,7 @@ def plot(
     for line in line_list:
         line.plot(plot_axis)
 
-    plot_axis.grid(True)
+    plot_axis.grid(True, which="both")
     plot_axis.set_title(plot_name)
 
     if legend_properties is not None:
