@@ -187,4 +187,5 @@ def plot(
         if axis_properties.tight_layout:
             fig.tight_layout()
 
-    save_and_close(plot_name, fig, dir_name)
+    plot_filename = save_and_close(plot_name, fig, dir_name)
+    return plot_filename

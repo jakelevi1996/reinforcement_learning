@@ -129,6 +129,7 @@ class ParamSweeper:
         return val_results_dict
 
     def plot(self, output_dir=None):
+        filename_list = []
         for param in self._param_list:
             if param.val_results_dict is None:
                 continue
@@ -186,13 +187,16 @@ class ParamSweeper:
                 label="Optimal value = %s" % param.default,
                 zorder=40,
             )
-            plotting.plot(
+            plot_filename = plotting.plot(
                 [all_results_line, mean_line, std_line, default_line],
                 "Parameter sweep results, varying parameter %s" % param.name,
                 output_dir,
                 legend_properties=plotting.LegendProperties(),
                 axis_properties=param.plot_axis_properties,
             )
+            filename_list.append(plot_filename)
+
+        return filename_list
 
     def _run_experiment(self, experiment_param_dict):
         self._print("Running an experiment with the following parameters:")
