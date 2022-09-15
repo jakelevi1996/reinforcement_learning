@@ -6,11 +6,43 @@ def dict_to_tuple(d):
     return tuple(sorted(d.items()))
 
 class Parameter:
-    def __init__(self, name, default, val_range):
+    def __init__(
+        self,
+        name,
+        default,
+        val_range=None,
+        val_lo=None,
+        val_hi=None,
+        val_num=10,
+        log_space=False,
+        plot_axis_properties=None,
+    ):
         self.name = name
         self.default = default
-        self.val_range = val_range
         self.val_results_dict = None
+
+        if (val_range is None) and ((val_lo is None) or (val_hi is None)):
+            raise ValueError(
+                "Must either specify val_range or specify val_lo and val_hi"
+            )
+        if val_range is None:
+            if log_space:
+                val_range = np.exp(
+                    np.linspace(np.log(val_lo), np.log(val_hi), val_num)
+                )
+            else:
+                val_range = np.linspace(val_lo, val_hi, val_num)
+
+        self.val_range = val_range
+
+        if plot_axis_properties is None:
+            plot_axis_properties = plotting.AxisProperties(
+                xlabel=name,
+                ylabel="Result",
+            )
+            plot_axis_properties.log_xscale = log_space
+
+        self.plot_axis_properties = plot_axis_properties
 
     def __repr__(self):
         return (
@@ -159,10 +191,7 @@ class ParamSweeper:
                 "Parameter sweep results, varying parameter %s" % param.name,
                 output_dir,
                 legend_properties=plotting.LegendProperties(),
-                axis_properties=plotting.AxisProperties(
-                    xlabel=param.name,
-                    ylabel="Result",
-                )
+                axis_properties=param.plot_axis_properties,
             )
 
     def _run_experiment(self, experiment_param_dict):
