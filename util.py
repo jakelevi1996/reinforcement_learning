@@ -1,5 +1,7 @@
 import os
 import pickle
+import traceback
+import datetime
 
 class Result:
     def __init__(self, filename, data=None):
@@ -41,6 +43,29 @@ class BlankContext:
 
     def __exit__(self, *args):
         return
+
+class ExceptionContext:
+    def __init__(self, suppress_exceptions=True, output_file=None):
+        self._suppress_exceptions = suppress_exceptions
+        self._file = output_file
+
+    def __enter__(self):
+        return
+
+    def __exit__(self, *args):
+        if args[0] is not None:
+            self._print("%s: An exception occured:" % datetime.datetime.now())
+            traceback.print_exception(*args)
+            if self._file is not None:
+                traceback.print_exception(*args, file=self._file)
+            if self._suppress_exceptions:
+                self._print("Suppressing exception and continuing...")
+                return True
+
+    def _print(self, s):
+        print(s)
+        if self._file is not None:
+            print(s, file=self._file)
 
 def clean_filename(filename_str, allowed_non_alnum_chars="-_.,"):
     filename_str_clean = "".join(
