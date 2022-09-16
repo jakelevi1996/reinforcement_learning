@@ -127,7 +127,7 @@ def plot(agent_result_list, args):
             "Time",
             "Reward",
             None,
-            [-2, 4],
+            [-0.5, 2],
         ),
         legend_properties=plotting.LegendProperties(0.4),
         figsize=[12, 6],
