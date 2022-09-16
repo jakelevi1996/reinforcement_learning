@@ -61,21 +61,23 @@ class ParamSweeper:
         n_repeats=5,
         n_sigma=1,
         higher_is_better=True,
-        output_file=None,
         print_every=1,
+        printer=None,
     ):
         self._experiment = experiment
         self._n_repeats = n_repeats
         self._n_sigma = n_sigma
         self._higher_is_better = higher_is_better
-        self._file = output_file
         self._print_every = print_every
+        if printer is None:
+            printer = util.Printer()
+        self._print = printer
 
         self._param_list = list()
         self._params_to_results_dict = dict()
         self._context = util.ExceptionContext(
             suppress_exceptions=True,
-            output_file=output_file,
+            printer=printer,
         )
 
     def add_parameter(self, parameter):
@@ -245,8 +247,3 @@ class ParamSweeper:
             )
 
         return best_param_val
-
-    def _print(self, s):
-        print(s)
-        if self._file is not None:
-            print(s, file=self._file)
