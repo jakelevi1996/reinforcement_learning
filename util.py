@@ -74,6 +74,40 @@ class ExceptionContext:
         if self._file is not None:
             print(s, file=self._file)
 
+class Printer:
+    def __init__(
+        self,
+        output_filename=None,
+        output_dir=None,
+        print_to_console=True,
+    ):
+        if output_filename is not None:
+            if output_dir is None:
+                output_dir = RESULTS_DIR
+
+            if not os.path.isdir(output_dir):
+                os.makedirs(output_dir)
+
+            output_path = os.path.join(output_dir, output_filename)
+            self._file = open(output_path, "w")
+        else:
+            self._file = None
+
+        self._print_to_console = print_to_console
+
+    def __call__(self, s):
+        self.print(s)
+
+    def print(self, s):
+        if self._print_to_console:
+            print(s)
+        if self._file is not None:
+            print(s, file=self._file)
+
+    def close(self):
+        if self._file is not None:
+            self._file.close()
+
 class Seeder:
     def __init__(self):
         self._used_seeds = set()
