@@ -15,8 +15,8 @@ class Result:
     def get_data(self):
         return self._data
 
-    def get_results_saving_context(self):
-        return ResultSavingContext(self)
+    def get_results_saving_context(self, suppress_exceptions=False):
+        return ResultSavingContext(self, suppress_exceptions)
 
     def save(self):
         print("\nSaving results data to \"%s\"..." % self._filename)
@@ -32,7 +32,7 @@ class Result:
         return self._data
 
 class ResultSavingContext:
-    def __init__(self, result, suppress_exceptions=False):
+    def __init__(self, result, suppress_exceptions):
         self._result = result
         self._suppress_exceptions = suppress_exceptions
 
