@@ -52,9 +52,11 @@ class BlankContext:
         return
 
 class ExceptionContext:
-    def __init__(self, suppress_exceptions=True, output_file=None):
+    def __init__(self, suppress_exceptions=True, printer=None):
         self._suppress_exceptions = suppress_exceptions
-        self._file = output_file
+        if printer is None:
+            printer = Printer()
+        self._print = printer
 
     def __enter__(self):
         return
@@ -62,17 +64,10 @@ class ExceptionContext:
     def __exit__(self, *args):
         if args[0] is not None:
             self._print("%s: An exception occured:" % datetime.datetime.now())
-            traceback.print_exception(*args)
-            if self._file is not None:
-                traceback.print_exception(*args, file=self._file)
+            self._print("".join(traceback.format_exception(*args)))
             if self._suppress_exceptions:
                 self._print("Suppressing exception and continuing...")
                 return True
-
-    def _print(self, s):
-        print(s)
-        if self._file is not None:
-            print(s, file=self._file)
 
 class Printer:
     def __init__(
