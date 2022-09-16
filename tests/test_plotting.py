@@ -63,16 +63,19 @@ def test_legend():
     )
 
 def test_plot_bar():
+    x1 = "Red" * 10
+    x2 = "Green" * 5
     plotting.plot(
         line_list=[
-            plotting.Bar("Red", 3.1, color="r", zorder=10, label="Bar 1"),
-            plotting.Bar("Green", 4.3, color="g", zorder=10, label="Bar 2"),
+            plotting.Bar(x1, 3.1, color="r", zorder=10, label="Bar 1"),
+            plotting.Bar(x2, 4.3, color="g", zorder=10, label="Bar 2"),
         ],
         plot_name="test_plot_bar",
         dir_name=OUTPUT_DIR,
         axis_properties=plotting.AxisProperties(
             xlabel="Category",
             ylabel="Height",
+            rotate_xticklabels=True,
         ),
         legend_properties=plotting.LegendProperties(),
     )
@@ -127,9 +130,6 @@ def test_colour_picker(num_colours, cyclic):
         dir_name=OUTPUT_DIR,
         legend_properties=plotting.LegendProperties(),
     )
-
-def test_rotate_xtick_labels():
-    pass
 
 def test_long_title():
     pass
