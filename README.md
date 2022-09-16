@@ -21,7 +21,11 @@ The K-armed bandit is arguably the simplest form of reinforcement learning probl
 
 ### Parameter sweeps
 
-*Coming soon*
+Parameter sweeps for the bandit algorithms can be performed using the script `scripts/param_sweep_bandits.py`. The parameter sweeps below for the algorithms epsilon-greedy, epsilon-greedy with constant step size, and the gradient bandit algorithm were performed with the command `python scripts/param_sweep_bandits.py --num_repeats 200 --num_values 20`, which ran in about 10 minutes using a single CPU process. Parameter sweeps were not performed for either of the Bayesian sampling algorithms, because both of these algorithms are non-parametric.
+
+The epsilon-greedy algorithm only has one parameter, epsilon. Below are the results for mean reward achieved after 1000 time steps on 200 different randomly generated 10-armed bandit task, for each of 20 different values of epsilon:
+
+![Varying parameter epsilon](https://github.com/jakelevi1996/reinforcement_learning/blob/main/scripts/Results/Protected/Param_sweeps/Bandit/200_repeats_1000_steps_20_values/Epsilon_greedy/Parameter_sweep_results_for__Epsilon_greedy_,_varying_parameter__epsilon_.png?raw=true "Varying parameter epsilon")
 
 ### Profiling
 
