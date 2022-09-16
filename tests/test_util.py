@@ -47,4 +47,18 @@ def test_printer():
         printer("Checking close method worked")
 
 def test_seeder():
-    pass
+    seeder = util.Seeder()
+    seed_list = [
+        seeder.get_seed(3, "string", seeder),
+        seeder.get_seed(3, "string", seeder),
+        seeder.get_seed(3, "string", seeder),
+        seeder.get_seed(3, "string", seeder),
+        seeder.get_seed(123),
+        seeder.get_seed(321),
+    ]
+    num_seeds = len(seed_list)
+    num_unique_seeds = len(set(seed_list))
+    assert num_unique_seeds == num_seeds
+
+    printer = util.Printer("test_seeder.txt", RESULTS_DIR)
+    printer("seed_list = %s" % seed_list)
