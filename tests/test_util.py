@@ -5,6 +5,12 @@ import util
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 RESULTS_DIR = os.path.join(CURRENT_DIR, "Results", "test_util")
 
+def test_result():
+    pass
+
+def test_exception_context():
+    pass
+
 def test_printer():
     printer = util.Printer(
         output_filename="test_printer.txt",
@@ -18,3 +24,6 @@ def test_printer():
 
     with pytest.raises(ValueError):
         printer("Checking close method worked")
+
+def test_seeder():
+    pass
