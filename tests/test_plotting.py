@@ -1,4 +1,7 @@
+import numpy as np
+import pytest
 import plotting
+import util
 import tests.util
 
 OUTPUT_DIR = tests.util.get_output_dir("test_plotting")
@@ -105,8 +108,25 @@ def test_log_axes():
         ),
     )
 
-def test_colour_picker():
-    pass
+@pytest.mark.parametrize("num_colours, cyclic", [[5, True], [7, False]])
+def test_colour_picker(num_colours, cyclic):
+    cp = plotting.ColourPicker(num_colours, cyclic)
+    x = np.linspace(-1, 7, 100)
+    line_list = [
+        plotting.Line(
+            x=x,
+            y=((1 + (i/10)) * np.sin(x + (i / num_colours))),
+            c=cp(i),
+            label="Line %i" % i,
+        )
+        for i in range(num_colours)
+    ]
+    plotting.plot(
+        line_list=line_list,
+        plot_name="test_colour_picker, cyclic=%s" % cyclic,
+        dir_name=OUTPUT_DIR,
+        legend_properties=plotting.LegendProperties(),
+    )
 
 def test_rotate_xtick_labels():
     pass
