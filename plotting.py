@@ -156,7 +156,7 @@ def plot(
 
     plot_axis.grid(True, which="both")
     if len(plot_name) > 80:
-        plot_name = textwrap.fill(plot_name, 60)
+        plot_name = textwrap.fill(plot_name, width=60, break_long_words=False)
     plot_axis.set_title(plot_name)
 
     if legend_properties is not None:
