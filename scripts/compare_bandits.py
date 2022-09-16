@@ -47,7 +47,7 @@ def main(agent_result_list, args):
 
 def plot(agent_result_list, args):
     t = np.arange(args.num_steps)
-    mt = 0.5 / args.num_repeats
+    mt = min(5 / args.num_repeats, 0.2)
     line_props = {"ls": "-", "marker": "", "alpha": 1, "zorder": 20}
     marker_props = {"ls": "", "marker": "o", "alpha": mt, "zorder": 10}
     cp = plotting.ColourPicker(len(agent_result_list))
@@ -115,6 +115,22 @@ def plot(agent_result_list, args):
         ls="--",
         color=cp(argmax_reward),
         label="Max reward (%s)" % agent_result_list[argmax_reward].name,
+    )
+    plotting.plot(
+        mean_reward_line_list,
+        (
+            "Epsilon greedy mean rewards (%i steps, %i repeats)"
+            % (args.num_steps, args.num_repeats)
+        ),
+        args.results_dir,
+        axis_properties=plotting.AxisProperties(
+            "Time",
+            "Reward",
+            None,
+            [-2, 4],
+        ),
+        legend_properties=plotting.LegendProperties(0.4),
+        figsize=[12, 6],
     )
     plotting.plot(
         [
