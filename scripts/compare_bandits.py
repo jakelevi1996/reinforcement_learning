@@ -119,7 +119,7 @@ def plot(agent_result_list, args):
     plotting.plot(
         mean_reward_line_list,
         (
-            "Epsilon greedy mean rewards (%i steps, %i repeats)"
+            "10-armed bandit mean rewards (%i steps, %i repeats)"
             % (args.num_steps, args.num_repeats)
         ),
         args.results_dir,
@@ -139,7 +139,7 @@ def plot(agent_result_list, args):
             for line in line_pair
         ],
         (
-            "Epsilon greedy rewards (%i steps, %i repeats)"
+            "10 armed bandit rewards (%i steps, %i repeats)"
             % (args.num_steps, args.num_repeats)
         ),
         args.results_dir,
@@ -159,7 +159,8 @@ def plot(agent_result_list, args):
             for line in line_pair
         ],
         (
-            "Epsilon greedy rewards (mean and variance, %i steps, %i repeats)"
+            "10 armed bandit rewards "
+            "(mean and variance, %i steps, %i repeats)"
             % (args.num_steps, args.num_repeats)
         ),
         args.results_dir,
@@ -175,7 +176,7 @@ def plot(agent_result_list, args):
     plotting.plot(
         percent_optimal_choice_line_list,
         (
-            "Epsilon greedy percentage of optimal actions "
+            "10 armed bandit percentage of optimal actions "
             "(%i steps, %i repeats)"
             % (args.num_steps, args.num_repeats)
         ),
@@ -191,7 +192,7 @@ def plot(agent_result_list, args):
     plotting.plot(
         mean_reward_bar_list + [max_mean_reward_hline],
         (
-            "Mean rewards "
+            "10 armed bandit total mean rewards "
             "(%i steps, %i repeats)"
             % (args.num_steps, args.num_repeats)
         ),
