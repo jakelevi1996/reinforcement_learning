@@ -16,7 +16,26 @@ def test_plot_lines():
     )
 
 def test_plot_fill():
-    pass
+    fill1 = plotting.FillBetween(
+        x=[1, 2, 2.5],
+        y1=[1.5, 2, 3],
+        y2=[4, 3, 4.5],
+        color="b",
+        alpha=0.3,
+    )
+    fill2 = plotting.FillBetween(
+        x=[1.3, 2.1, 3],
+        y1=[4, 2, 3],
+        y2=[5.5, 4, 4.5],
+        color="r",
+        alpha=0.3,
+    )
+    plotting.plot(
+        line_list=[fill1, fill2],
+        plot_name="test_plot_fill",
+        dir_name=OUTPUT_DIR,
+        axis_properties=plotting.AxisProperties(xlabel="x", ylabel="y"),
+    )
 
 def test_plot_bar():
     pass
