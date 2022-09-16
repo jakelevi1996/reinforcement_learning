@@ -75,7 +75,35 @@ def test_plot_bar():
     )
 
 def test_log_axes():
-    pass
+    seed = util.Seeder().get_seed("test_log_axes")
+    rng = np.random.default_rng(seed)
+    n = 100
+    x = np.linspace(-2, 5, n)
+    noise = 0.1 * rng.normal(size=n)
+    plotting.plot(
+        line_list=[plotting.Line(x, np.exp(x + noise), c="b")],
+        plot_name="test_log_axes - log y axis",
+        dir_name=OUTPUT_DIR,
+        axis_properties=plotting.AxisProperties("x", "y", log_yscale=True),
+    )
+    plotting.plot(
+        line_list=[plotting.Line(np.exp(x), x + noise, c="b")],
+        plot_name="test_log_axes - log x axis",
+        dir_name=OUTPUT_DIR,
+        axis_properties=plotting.AxisProperties("x", "y", log_xscale=True),
+    )
+    x2 = np.exp(np.linspace(2, 8, n))
+    plotting.plot(
+        line_list=[plotting.Line(x2, np.power(x2 + 50*noise, -1.5), c="b")],
+        plot_name="test_log_axes - log both axes",
+        dir_name=OUTPUT_DIR,
+        axis_properties=plotting.AxisProperties(
+            xlabel="x",
+            ylabel="y",
+            log_xscale=True,
+            log_yscale=True,
+        ),
+    )
 
 def test_colour_picker():
     pass
