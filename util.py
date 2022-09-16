@@ -32,14 +32,17 @@ class Result:
         return self._data
 
 class ResultSavingContext:
-    def __init__(self, result):
+    def __init__(self, result, suppress_exceptions=False):
         self._result = result
+        self._suppress_exceptions = suppress_exceptions
 
     def __enter__(self):
         return self._result
 
     def __exit__(self, *args):
         self._result.save()
+        if self._suppress_exceptions:
+            return True
 
 class BlankContext:
     def __enter__(self):
