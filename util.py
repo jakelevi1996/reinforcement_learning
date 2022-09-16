@@ -4,6 +4,9 @@ import traceback
 import datetime
 import time
 
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+RESULTS_DIR = os.path.join(CURRENT_DIR, "Results")
+
 class Result:
     def __init__(self, filename, data=None):
         self._data = data

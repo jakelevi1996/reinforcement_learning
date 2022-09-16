@@ -6,9 +6,6 @@ import matplotlib.patches
 import numpy as np
 import util
 
-CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-RESULTS_DIR = os.path.join(CURRENT_DIR, "Results")
-
 class Line:
     def __init__(self, x, y, **kwargs):
         if x is None:
@@ -123,7 +120,7 @@ class LegendProperties:
 
 def save_and_close(plot_name, fig, dir_name=None, file_ext="png"):
     if dir_name is None:
-        dir_name = RESULTS_DIR
+        dir_name = util.RESULTS_DIR
     if not os.path.isdir(dir_name):
         os.makedirs(dir_name)
     file_name = "%s.%s" % (util.clean_filename(plot_name), file_ext)
