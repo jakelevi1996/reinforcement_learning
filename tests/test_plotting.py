@@ -131,5 +131,30 @@ def test_colour_picker(num_colours, cyclic):
         legend_properties=plotting.LegendProperties(),
     )
 
-def test_long_title():
-    pass
+def test_title():
+    """ Check that long titles are wrapped, invalid characters are removed from
+    the title, and latex formatting within the title (or axis or legend labels)
+    is formatted correctly """
+    title = (
+        "This is a very long title containing /|\\*:<\"$pecial?\">:*/|\\ "
+        "characters which wraps multiple lines because it is too long for "
+        "one line. It also contains $\\sum_{{i}}{{\\left[\\frac{{latex}}{{"
+        "\\alpha_i^\\beta}}\\right]}}$"
+    )
+    line = plotting.Line(
+        x=[1, 2, 3],
+        y=[4, 4.5, 6],
+        c="b",
+        marker="o",
+        label="$\\beta ^ \\varepsilon$",
+    )
+    plotting.plot(
+        [line],
+        plot_name=title,
+        dir_name=OUTPUT_DIR,
+        axis_properties=plotting.AxisProperties(
+            xlabel="$x_1$",
+            ylabel="$x_2$",
+        ),
+        legend_properties=plotting.LegendProperties()
+    )
