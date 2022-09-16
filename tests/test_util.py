@@ -17,7 +17,20 @@ def test_result():
     assert loaded_data == [1, 2, 12]
 
 def test_exception_context():
-    pass
+    printer = util.Printer(
+        output_filename="test_exception_context.txt",
+        output_dir=RESULTS_DIR,
+    )
+    printer("About to enter ExceptionContext...")
+    with util.ExceptionContext(suppress_exceptions=True, printer=printer):
+        printer("In context, about to raise ValueError...")
+        raise ValueError("Error message")
+
+    printer("ExceptionContext has exited, now back in test_exception_context")
+
+    with pytest.raises(ValueError):
+        with util.ExceptionContext(suppress_exceptions=False):
+            raise ValueError
 
 def test_printer():
     printer = util.Printer(
