@@ -17,7 +17,17 @@ The K-armed bandit is arguably the simplest form of reinforcement learning probl
 
 ### Results
 
-*Coming soon*
+Shown below are 3 graphs which demonstrate the relative performance of 5 different bandit algorithms tested on 2000 different randomly generated bandit tasks (which ran in total in just under 5 minutes using a single CPU process), which respectively show:
+
+- The rewards over time, averaged across all tasks
+- The percentage of actions chosen that were optimal over time, averaged across the same tasks
+- A bar chart of the total mean rewards, showing that the Bayesian sampling algorithms are best overall (with a value-based prior being marginally better than a broad prior)
+
+![Mean rewards over time](https://github.com/jakelevi1996/reinforcement_learning/blob/main/scripts/Results/Protected/Bandit/2000_repeats_1000_steps/10-armed_bandit_mean_rewards__1000_steps,_2000_repeats_.png?raw=true "Mean rewards over time")
+
+![Percentage optimal actions](https://github.com/jakelevi1996/reinforcement_learning/blob/main/scripts/Results/Protected/Bandit/2000_repeats_1000_steps/10_armed_bandit_percentage_of_optimal_actions__1000_steps,_2000_repeats_.png?raw=true "Percentage optimal actions")
+
+![Bar chart of total mean rewards](https://github.com/jakelevi1996/reinforcement_learning/blob/main/scripts/Results/Protected/Bandit/2000_repeats_1000_steps/10_armed_bandit_total_mean_rewards__1000_steps,_2000_repeats_.png?raw=true "Bar chart of total mean rewards")
 
 ### Parameter sweeps
 
