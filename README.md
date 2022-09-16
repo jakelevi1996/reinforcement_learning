@@ -2,6 +2,8 @@
 
 This repository contains implementations of RL (reinforcement learning) algorithms, specifically from "Sutton, Richard S., and Andrew G. Barto. Reinforcement learning: An introduction. MIT press, 2018." Eventually I hope to also add implementations of more cutting edge RL algorithms directly from the literature.
 
+This repository contains unit tests. To run the unit tests, make sure Python 3 and `pytest` are installed, and run the command `pytest` or `python -m pytest`.
+
 ## Contents
 
 - [reinforcement_learning](#reinforcement_learning)
