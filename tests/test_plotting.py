@@ -38,7 +38,18 @@ def test_plot_fill():
     )
 
 def test_plot_bar():
-    pass
+    plotting.plot(
+        line_list=[
+            plotting.Bar("Red", 3.1, color="r", zorder=10),
+            plotting.Bar("Green", 4.3, color="g", zorder=10),
+        ],
+        plot_name="test_plot_bar",
+        dir_name=OUTPUT_DIR,
+        axis_properties=plotting.AxisProperties(
+            xlabel="Category",
+            ylabel="Height",
+        ),
+    )
 
 def test_legend():
     pass
