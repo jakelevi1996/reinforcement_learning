@@ -4,8 +4,8 @@ from agents.bandits.bandit_agent import _BanditAgent
 class EpsilonGreedy(_BanditAgent):
     def __init__(
         self,
-        epsilon=0.1,
-        step_size=0.1,
+        epsilon=0.02,
+        step_size=0.3,
         num_actions=10,
         initial_value_estimates=None,
         rng=None,

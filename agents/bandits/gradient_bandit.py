@@ -2,7 +2,7 @@ import numpy as np
 from agents.bandits.bandit_agent import _BanditAgent
 
 class GradientBandit(_BanditAgent):
-    def __init__(self, step_size=0.1, num_actions=10, rng=None):
+    def __init__(self, step_size=0.5, num_actions=10, rng=None):
         self._num_actions = num_actions
         self._step_size = step_size
         self._step = 1
