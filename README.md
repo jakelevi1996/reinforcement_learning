@@ -21,11 +21,28 @@ The K-armed bandit is arguably the simplest form of reinforcement learning probl
 
 ### Parameter sweeps
 
-Parameter sweeps for the bandit algorithms can be performed using the script `scripts/param_sweep_bandits.py`. The parameter sweeps below for the algorithms epsilon-greedy, epsilon-greedy with constant step size, and the gradient bandit algorithm were performed with the command `python scripts/param_sweep_bandits.py --num_repeats 200 --num_values 20`, which ran in about 10 minutes using a single CPU process. Parameter sweeps were not performed for either of the Bayesian sampling algorithms, because both of these algorithms are non-parametric.
+- Parameter sweeps for the bandit algorithms can be performed using the script `scripts/param_sweep_bandits.py`
+- The parameter sweeps below for the algorithms epsilon-greedy, epsilon-greedy with constant step size, and the gradient bandit algorithm were performed with the command `python scripts/param_sweep_bandits.py --num_repeats 200 --num_values 20`, which ran in about 10 minutes using a single CPU process
+- Parameter sweeps were not performed for either of the Bayesian sampling algorithms, because both of these algorithms are non-parametric
+- The parameter sweep results show mean reward achieved after 1000 time steps on 200 different randomly generated 10-armed bandit tasks, for each of 20 different values of each parameter being considered
+- We want to choose the optimal value for each parameter as one which *reliably* produces a high mean reward
+  - Therefore, the optimal value for each parameter is considered to be not the value with the highest mean reward, but the value with the highest of a particular linear combination of mean and standard deviation of the mean reward over different randomly generated bandit tasks
+  - This is to ensure that an optimal value is not chosen as one that has high mean reward if it also has excessively high variance, which would imply that it does not *reliably* produce a high reward
+- For algorithms with multiple parameters, each parameter is set to its optimal value when it is not being swept
 
-The epsilon-greedy algorithm only has one parameter, epsilon. Below are the results for mean reward achieved after 1000 time steps on 200 different randomly generated 10-armed bandit task, for each of 20 different values of epsilon:
+The epsilon-greedy algorithm only has one parameter, epsilon. Below are the parameter sweep results for the parameter epsilon:
 
 ![Varying parameter epsilon](https://github.com/jakelevi1996/reinforcement_learning/blob/main/scripts/Results/Protected/Param_sweeps/Bandit/200_repeats_1000_steps_20_values/Epsilon_greedy/Parameter_sweep_results_for__Epsilon_greedy_,_varying_parameter__epsilon_.png?raw=true "Varying parameter epsilon")
+
+The epsilon-greedy algorithm with constant step size has two parameters, epsilon and step size. Below are the parameter sweep results for both of these parameters:
+
+![Varying parameter epsilon](https://github.com/jakelevi1996/reinforcement_learning/blob/main/scripts/Results/Protected/Param_sweeps/Bandit/200_repeats_1000_steps_20_values/Epsilon_greedy_constant_step_size/Varying_epsilon.png?raw=true "Varying parameter epsilon")
+
+![Varying parameter step size](https://github.com/jakelevi1996/reinforcement_learning/blob/main/scripts/Results/Protected/Param_sweeps/Bandit/200_repeats_1000_steps_20_values/Epsilon_greedy_constant_step_size/Varying_step_size.png?raw=true "Varying parameter step size")
+
+The gradient bandit algorithm only has one parameter, step size. Below are the parameter sweep results for the parameter step size:
+
+![Varying parameter step size](https://github.com/jakelevi1996/reinforcement_learning/blob/main/scripts/Results/Protected/Param_sweeps/Bandit/200_repeats_1000_steps_20_values/Gradient_bandit/Parameter_sweep_results_for__Gradient_bandit_,_varying_parameter__step_size_.png?raw=true "Varying parameter step size")
 
 ### Profiling
 
