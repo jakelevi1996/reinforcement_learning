@@ -1,9 +1,8 @@
-import os
 import pytest
 import util
+import tests.util
 
-CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-RESULTS_DIR = os.path.join(CURRENT_DIR, "Results", "test_util")
+RESULTS_DIR = tests.util.get_output_dir("test_util")
 
 def test_result():
     pass
