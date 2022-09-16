@@ -1,3 +1,4 @@
+import os
 import pytest
 import util
 import tests.util
@@ -5,7 +6,15 @@ import tests.util
 RESULTS_DIR = tests.util.get_output_dir("test_util")
 
 def test_result():
-    pass
+    output_filename = os.path.join(RESULTS_DIR, "result_data.pkl")
+    data = [1, 2, 3]
+    result = util.Result(output_filename, data)
+    with result.get_results_saving_context(suppress_exceptions=True):
+        data[2] *= 4
+        raise ValueError()
+
+    loaded_data = result.load()
+    assert loaded_data == [1, 2, 12]
 
 def test_exception_context():
     pass
