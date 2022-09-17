@@ -153,10 +153,17 @@ class ParamSweeper:
             std  = np.array([np.std( x) for x in results_list_list])
             mean_default = np.mean(val_results_dict[param.default])
             std_default  = np.std( val_results_dict[param.default])
+
             if self._higher_is_better:
                 optimal_h = mean_default - (self._n_sigma * std_default)
             else:
                 optimal_h = mean_default + (self._n_sigma * std_default)
+
+            if util.is_numeric(param.default):
+                param_default_str = "%.3g" % param.default
+            else:
+                param_default_str = str(param.default)
+
             all_results_line = plotting.Line(
                 all_results_x,
                 all_results_y,
@@ -188,7 +195,7 @@ class ParamSweeper:
                 h=optimal_h,
                 c="r",
                 ls="--",
-                label="Optimal value = %.3g" % param.default,
+                label="Optimal value = %s" % param_default_str,
                 zorder=40,
             )
             plot_filename = plotting.plot(
