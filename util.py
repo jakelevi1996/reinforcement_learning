@@ -3,6 +3,7 @@ import pickle
 import traceback
 import datetime
 import time
+import numpy as np
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 RESULTS_DIR = os.path.join(CURRENT_DIR, "Results")
@@ -128,3 +129,6 @@ def clean_filename(filename_str, allowed_non_alnum_chars="-_.,"):
         for c in str(filename_str)
     )
     return filename_str_clean
+
+def is_numeric(x):
+    return any(isinstance(x, t) for t in [int, float, np.number])
