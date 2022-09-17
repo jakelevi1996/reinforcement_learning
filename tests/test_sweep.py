@@ -115,8 +115,47 @@ def test_sweep_errors():
         % (num_experiments, len(valid_experiments), len(invalid_experiments))
     )
 
-def test_sweep_categorical_parameter():
-    pass
+def test_sweep_categorical_and_log_range_parameters():
+    output_dir = os.path.join(
+        OUTPUT_DIR,
+        "test_sweep_categorical_and_log_range_parameters",
+    )
+    printer = util.Printer("Console_output.txt", output_dir)
+    seed = util.Seeder().get_seed(output_dir)
+    rng = np.random.default_rng(seed)
+    categories = ["apple", "orange", "pear"]
+
+    class SemiCategorical(sweep.Experiment):
+        def run(self, x, y, category):
+            if category == "apple":
+                return - sq_distance([x, y], [3, 4]) + rng.normal(0, 2)
+            if category == "orange":
+                return - sq_distance([x, y], [3, 4]) + rng.normal(13, 1)
+            if category == "pear":
+                return - sq_distance([x, y], [3, 4]) + rng.normal(14, 3)
+            else:
+                raise ValueError("Invalid category")
+
+    sweeper = sweep.ParamSweeper(
+        experiment=SemiCategorical(),
+        n_repeats=100,
+        n_sigma=2.5,
+        higher_is_better=True,
+        print_every=50,
+        printer=printer,
+    )
+    sweeper.add_parameter(sweep.Parameter("x", 0, list(range(11))))
+    sweeper.add_parameter(sweep.Parameter("y", 0.1, None, 0.1, 10, 20, True))
+    sweeper.add_parameter(sweep.Parameter("category", "apple", categories))
+    optimal_param_dict = sweeper.find_best_parameters()
+    sweeper.plot("test_sweep_categorical_parameter", output_dir)
+
+    printer(
+        "%i experiments performed in total"
+        % len(sweeper._params_to_results_dict)
+    )
+
+    assert optimal_param_dict["category"] == "orange"
 
 def test_multiple_sweeps():
     output_dir = os.path.join(OUTPUT_DIR, "test_multiple_sweeps")
