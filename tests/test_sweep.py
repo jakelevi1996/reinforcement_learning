@@ -16,8 +16,7 @@ def test_sweep(higher_is_better):
 
     printer = util.Printer("Console_output.txt", output_dir)
     target = [2, 5, 7]
-    seed = util.Seeder().get_seed("test_sweep", higher_is_better)
-    rng = np.random.default_rng(seed)
+    rng = util.Seeder().get_rng("test_sweep", higher_is_better)
 
     class SimpleExperiment(sweep.Experiment):
         def run(self, x, y, z):
@@ -52,8 +51,7 @@ def test_sweep(higher_is_better):
 def test_sweep_errors():
     output_dir = os.path.join(OUTPUT_DIR, "test_sweep_errors")
     printer = util.Printer("Console_output.txt", output_dir)
-    seed = util.Seeder().get_seed("test_sweep_errors")
-    rng = np.random.default_rng(seed)
+    rng = util.Seeder().get_rng("test_sweep_errors")
     target = [2, 5, 7]
     num_repeats = 20
 
@@ -121,8 +119,7 @@ def test_sweep_categorical_and_log_range_parameters():
         "test_sweep_categorical_and_log_range_parameters",
     )
     printer = util.Printer("Console_output.txt", output_dir)
-    seed = util.Seeder().get_seed(output_dir)
-    rng = np.random.default_rng(seed)
+    rng = util.Seeder().get_rng(output_dir)
     categories = ["apple", "orange", "pear"]
 
     class SemiCategorical(sweep.Experiment):
