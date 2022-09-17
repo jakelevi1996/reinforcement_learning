@@ -64,6 +64,24 @@ def test_seeder():
     printer = util.Printer("test_seeder.txt", OUTPUT_DIR)
     printer("seed_list = %s" % seed_list)
 
+    x1 = util.Seeder().get_rng("test_seeder").normal(size=10)
+    x2 = util.Seeder().get_rng("test_seeder").normal(size=10)
+    assert x1.size == 10
+    assert x2.size == 10
+    assert np.all(x1 == x2)
+
+    x3 = util.Seeder().get_rng("test_seeder", 2).normal(size=10)
+    assert x3.size == 10
+    assert not np.all(x1 == x3)
+    assert not np.all(x2 == x3)
+
+    seeder2 = util.Seeder()
+    x4 = seeder2.get_rng("test_seeder").normal(size=10)
+    x5 = seeder2.get_rng("test_seeder").normal(size=10)
+    assert x4.size == 10
+    assert x5.size == 10
+    assert not np.all(x4 == x5)
+
 def test_is_numeric():
     assert util.is_numeric(3)
     assert util.is_numeric(3.3)
