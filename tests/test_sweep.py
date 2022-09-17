@@ -26,7 +26,7 @@ def test_sweep(higher_is_better):
     else:
         output_dir = os.path.join(OUTPUT_DIR, "lower_is_better")
 
-    printer = util.Printer("Console output.txt", output_dir)
+    printer = util.Printer("Console_output.txt", output_dir)
     sweeper = sweep.ParamSweeper(
         experiment=SimpleExperiment(),
         n_repeats=100,
@@ -49,7 +49,70 @@ def test_sweep(higher_is_better):
     assert optimal_params == target
 
 def test_sweep_errors():
-    pass
+    output_dir = os.path.join(OUTPUT_DIR, "test_sweep_errors")
+    printer = util.Printer("Console_output.txt", output_dir)
+    seed = util.Seeder().get_seed("test_sweep_errors")
+    rng = np.random.default_rng(seed)
+    target = [2, 5, 7]
+    num_repeats = 20
+
+    def is_valid(x, y, z):
+        return (((x + y + z) % 2) != 0)
+
+    class ErrorExperiment(sweep.Experiment):
+        def run(self, x, y, z):
+            if not is_valid(x, y, z):
+                raise ValueError("Arguments are invalid")
+
+            noise = rng.normal()
+            return - sq_distance([x, y, z], target) + noise
+
+    sweeper = sweep.ParamSweeper(
+        experiment=ErrorExperiment(),
+        n_repeats=num_repeats,
+        n_sigma=2.5,
+        higher_is_better=True,
+        print_every=10,
+        printer=printer,
+    )
+    sweeper.add_parameter(sweep.Parameter("x", 0, list(range(11))))
+    sweeper.add_parameter(sweep.Parameter("y", 0, list(range(11))))
+    sweeper.add_parameter(sweep.Parameter("z", 0, list(range(11))))
+    sweeper.find_best_parameters()
+    sweeper.plot("test_sweep_errors", output_dir)
+
+    num_experiments = len(sweeper._params_to_results_dict)
+    valid_experiments = {
+        param_tuple: results_list
+        for param_tuple, results_list
+        in sweeper._params_to_results_dict.items()
+        if len(results_list) > 0
+    }
+    invalid_experiments = {
+        param_tuple: results_list
+        for param_tuple, results_list
+        in sweeper._params_to_results_dict.items()
+        if len(results_list) == 0
+    }
+    assert len(valid_experiments) > 0
+    assert len(valid_experiments) < num_experiments
+    assert len(invalid_experiments) > 0
+    assert len(invalid_experiments) < num_experiments
+    for param_tuple, results_list in valid_experiments.items():
+        x, y, z = [pair[1] for pair in param_tuple]
+        assert is_valid(x, y, z)
+        assert len(results_list) > 0
+
+    for param_tuple, results_list in invalid_experiments.items():
+        x, y, z = [pair[1] for pair in param_tuple]
+        assert not is_valid(x, y, z)
+        assert len(results_list) == 0
+
+    printer(
+        "%i experiments performed in total, of which %i were valid, and %i "
+        "were invalid"
+        % (num_experiments, len(valid_experiments), len(invalid_experiments))
+    )
 
 def test_sweep_categorical_parameter():
     pass
@@ -84,7 +147,7 @@ def test_multiple_sweeps():
         [5 , 10, 5 ],
     ]
     output_dir = os.path.join(OUTPUT_DIR, "test_multiple_sweeps")
-    printer = util.Printer("Console output.txt", output_dir)
+    printer = util.Printer("Console_output.txt", output_dir)
     experiment = MultiSweep(target_list, printer)
     sweeper = sweep.ParamSweeper(experiment, 1, printer=printer)
     sweeper.add_parameter(sweep.Parameter("x", 0, list(range(11))))
