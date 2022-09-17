@@ -116,6 +116,11 @@ class Seeder:
         self._used_seeds.add(seed)
         return seed
 
+    def get_rng(self, *args):
+        seed = self.get_seed(*args)
+        rng = np.random.default_rng(seed)
+        return rng
+
 def time_func(func, *args, **kwargs):
     t_start = time.perf_counter()
     func(*args, **kwargs)
