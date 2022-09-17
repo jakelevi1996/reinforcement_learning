@@ -100,6 +100,8 @@ class ParamSweeper:
         for param in self._param_list:
             self._print("> %20r = %s" % (param.name, param.default))
 
+        return {param.name: param.default for param in self._param_list}
+
     def sweep_parameter(self, parameter, update_parameters=True):
         param_dict = {param.name: param.default for param in self._param_list}
         val_results_dict = dict()
