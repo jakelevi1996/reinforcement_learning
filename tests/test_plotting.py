@@ -81,26 +81,29 @@ def test_plot_bar():
     )
 
 def test_log_axes():
-    seed = util.Seeder().get_seed("test_log_axes")
-    rng = np.random.default_rng(seed)
-    n = 100
-    x = np.linspace(-2, 5, n)
-    noise = 0.1 * rng.normal(size=n)
+    x1 = [1, 2, 3, 4, 5, 6]
+    y1 = 1e-3 * np.array([1.2, 6, 120, 600, 1e4, 9e4])
     plotting.plot(
-        line_list=[plotting.Line(x, np.exp(x + noise), c="b")],
+        line_list=[plotting.Line(x1, y1, c="b", marker="o")],
         plot_name="test_log_axes - log y axis",
         dir_name=OUTPUT_DIR,
         axis_properties=plotting.AxisProperties("x", "y", log_yscale=True),
     )
+
+    x2 = [0.1, 1, 10, 100, 1000]
+    y2 = [3.8, 3.2, 1.8, 1.2, -1.2]
     plotting.plot(
-        line_list=[plotting.Line(np.exp(x), x + noise, c="b")],
+        line_list=[plotting.Line(x2, y2, c="b", marker="o")],
         plot_name="test_log_axes - log x axis",
         dir_name=OUTPUT_DIR,
         axis_properties=plotting.AxisProperties("x", "y", log_xscale=True),
     )
-    x2 = np.exp(np.linspace(2, 8, n))
+
+    x3 = [1, 10, 100, 1000]
+    noise = np.array([0.4, 1.8, 0.3, 2.2])
+    y3 = 1e-4 * np.power(x3, 2.3) * noise
     plotting.plot(
-        line_list=[plotting.Line(x2, np.power(x2 + 50*noise, -1.5), c="b")],
+        line_list=[plotting.Line(x3, y3, c="b", marker="o")],
         plot_name="test_log_axes - log both axes",
         dir_name=OUTPUT_DIR,
         axis_properties=plotting.AxisProperties(
