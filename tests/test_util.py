@@ -3,10 +3,10 @@ import pytest
 import util
 import tests.util
 
-RESULTS_DIR = tests.util.get_output_dir("test_util")
+OUTPUT_DIR = tests.util.get_output_dir("test_util")
 
 def test_result():
-    output_filename = os.path.join(RESULTS_DIR, "result_data.pkl")
+    output_filename = os.path.join(OUTPUT_DIR, "result_data.pkl")
     data = [1, 2, 3]
     result = util.Result(output_filename, data)
     with result.get_results_saving_context(suppress_exceptions=True):
@@ -19,7 +19,7 @@ def test_result():
 def test_exception_context():
     printer = util.Printer(
         output_filename="test_exception_context.txt",
-        output_dir=RESULTS_DIR,
+        output_dir=OUTPUT_DIR,
     )
     printer("About to enter ExceptionContext...")
     with util.ExceptionContext(suppress_exceptions=True, printer=printer):
@@ -35,7 +35,7 @@ def test_exception_context():
 def test_printer():
     printer = util.Printer(
         output_filename="test_printer.txt",
-        output_dir=RESULTS_DIR,
+        output_dir=OUTPUT_DIR,
         print_to_console=False,
     )
     printer.print("Testing print method")
@@ -60,5 +60,5 @@ def test_seeder():
     num_unique_seeds = len(set(seed_list))
     assert num_unique_seeds == num_seeds
 
-    printer = util.Printer("test_seeder.txt", RESULTS_DIR)
+    printer = util.Printer("test_seeder.txt", OUTPUT_DIR)
     printer("seed_list = %s" % seed_list)
