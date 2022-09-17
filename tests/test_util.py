@@ -1,5 +1,6 @@
 import os
 import pytest
+import numpy as np
 import util
 import tests.util
 
@@ -62,3 +63,18 @@ def test_seeder():
 
     printer = util.Printer("test_seeder.txt", OUTPUT_DIR)
     printer("seed_list = %s" % seed_list)
+
+def test_is_numeric():
+    assert util.is_numeric(3)
+    assert util.is_numeric(3.3)
+    assert util.is_numeric(np.double(4))
+    assert util.is_numeric(np.long(4))
+    assert util.is_numeric(np.uint(4.5))
+    assert util.is_numeric(np.linspace(0, 1)[20])
+    assert util.is_numeric(np.linspace(0, 1, dtype=float)[20])
+    assert util.is_numeric(np.linspace(0, 100, dtype=int)[20])
+    assert util.is_numeric(np.linspace(0, 100, dtype=np.uint)[20])
+    assert not util.is_numeric(np.linspace(0, 1))
+    assert not util.is_numeric("frog")
+    assert not util.is_numeric(util)
+    assert not util.is_numeric(util.is_numeric)
