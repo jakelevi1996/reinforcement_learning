@@ -30,10 +30,6 @@ def main(agent_result_list, args):
                 % (i + 1, args.num_repeats), end="\r"
             )
         env = environments.KArmedBandit()
-        optimal_actions = [
-            a for a, value in enumerate(env._action_values)
-            if value == max(env._action_values)
-        ]
         for agent_result in agent_result_list:
             agent = agent_result.construcor()
 
@@ -42,7 +38,7 @@ def main(agent_result_list, args):
                 reward = env.step(action)
                 agent.update(action, reward)
                 agent_result.reward_array[i, j] = reward
-                if action in optimal_actions:
+                if env.is_optimal_action(action):
                     agent_result.optimal_choice_array[i, j] = 1
 
 def plot(agent_result_list, args):
