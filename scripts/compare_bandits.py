@@ -297,12 +297,7 @@ if __name__ == "__main__":
         else:
             context = result.get_results_saving_context()
         with context:
-            t_start = time.perf_counter()
-
-            main(agent_result_list, args)
-
-            t_total = time.perf_counter() - t_start
-            print("\nFinished main function in %.1fs" % t_total)
+            util.time_func(main, agent_result_list, args)
 
     if not args.no_plot:
         print("Plotting results...")
