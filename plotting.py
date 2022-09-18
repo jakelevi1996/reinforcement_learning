@@ -21,7 +21,7 @@ class Line:
         return ("label" in self._kwargs)
 
     def get_handle(self):
-        if self.has_label:
+        if self.has_label():
             if "alpha" in self._kwargs:
                 alpha = self._kwargs.pop("alpha")
                 handle = self._get_handle_from_kwargs(self._kwargs)
@@ -45,7 +45,7 @@ class FillBetween(Line):
         axis.fill_between(self._x, self._y1, self._y2, **self._kwargs)
 
     def get_handle(self):
-        if self.has_label:
+        if self.has_label():
             return matplotlib.patches.Patch(**self._kwargs)
 
 class HVLine(Line):
