@@ -204,12 +204,11 @@ def test_multiple_sweeps():
     assert optimal_params == target_list[-1]
 
     for target in target_list:
-        target_dict = {"x": target[0], "y": target[1], "z": target[2]}
-        target_tuple = sweep.dict_to_tuple(target_dict)
+        target_tuple = (("x", target[0]), ("y", target[1]), ("z", target[2]))
         assert target_tuple in sweeper._params_to_results_dict
 
     for i in range(11):
-        point_tuple = sweep.dict_to_tuple({"x": i, "y": i, "z": i})
+        point_tuple = (("x", i), ("y", i), ("z", i))
         if i in [0, 5, 10]:
             assert point_tuple in sweeper._params_to_results_dict
         else:

@@ -2,9 +2,6 @@ import numpy as np
 import util
 import plotting
 
-def dict_to_tuple(d):
-    return tuple(sorted(d.items()))
-
 class Parameter:
     def __init__(
         self,
@@ -108,7 +105,7 @@ class ParamSweeper:
 
         for val in parameter.val_range:
             param_dict[parameter.name] = val
-            param_tuple = dict_to_tuple(param_dict)
+            param_tuple = tuple(sorted(param_dict.items()))
 
             if param_tuple not in self._params_to_results_dict:
                 results_list = self._run_experiment(param_dict)
