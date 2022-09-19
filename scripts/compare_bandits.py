@@ -230,13 +230,15 @@ if __name__ == "__main__":
         "--no_save",
         help="If this argument is present, no results are saved (this is "
         "useful for example when profiling the main function)",
-        action="store_true",
+        action="store_false",
+        dest="save",
     )
     parser.add_argument(
         "--no_plot",
         help="If this argument is present, no output plots are produced (this "
         "is useful for example when profiling the main function)",
-        action="store_true",
+        action="store_false",
+        dest="plot",
     )
     parser.add_argument(
         "--num_steps",
@@ -292,13 +294,13 @@ if __name__ == "__main__":
         ]
         result_data = [agent_result_list, args.num_steps, args.num_repeats]
         result = util.Result(args.save_data_filename, result_data)
-        if args.no_save:
-            context = util.BlankContext()
-        else:
+        if args.save:
             context = result.get_results_saving_context()
+        else:
+            context = util.BlankContext()
         with context:
             util.time_func(main, agent_result_list, args)
 
-    if not args.no_plot:
+    if args.plot:
         print("Plotting results...")
         plot(agent_result_list, args)
