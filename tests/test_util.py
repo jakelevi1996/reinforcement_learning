@@ -92,6 +92,7 @@ def test_is_numeric():
     assert util.is_numeric(np.linspace(0, 1, dtype=float)[20])
     assert util.is_numeric(np.linspace(0, 100, dtype=int)[20])
     assert util.is_numeric(np.linspace(0, 100, dtype=np.uint)[20])
+    assert not util.is_numeric(complex(3.3, 4.2))
     assert not util.is_numeric(np.linspace(0, 1))
     assert not util.is_numeric("frog")
     assert not util.is_numeric(util)
