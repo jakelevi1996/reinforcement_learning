@@ -294,11 +294,7 @@ if __name__ == "__main__":
         ]
         result_data = [agent_result_list, args.num_steps, args.num_repeats]
         result = util.Result(args.save_data_filename, result_data)
-        if args.save:
-            context = result.get_results_saving_context()
-        else:
-            context = util.BlankContext()
-        with context:
+        with result.get_context(save=args.save):
             util.time_func(main, agent_result_list, args)
 
     if args.plot:

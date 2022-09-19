@@ -10,11 +10,11 @@ def test_result():
     output_filename = os.path.join(OUTPUT_DIR, "result_data.pkl")
     data = [1, 2, 3]
     result = util.Result(output_filename, data)
-    with result.get_results_saving_context(suppress_exceptions=True):
+    with result.get_context(save=True, suppress_exceptions=True):
         data[2] *= 4
         raise ValueError()
 
-    loaded_data = result.load()
+    loaded_data = util.Result(output_filename).load()
     assert loaded_data == [1, 2, 12]
 
 def test_exception_context():
