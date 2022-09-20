@@ -93,10 +93,11 @@ def test_sweep_errors():
         in sweeper._params_to_results_dict.items()
         if len(results_list) == 0
     }
-    assert len(valid_experiments) > 0
-    assert len(valid_experiments) < num_experiments
-    assert len(invalid_experiments) > 0
-    assert len(invalid_experiments) < num_experiments
+    num_valid   = len(valid_experiments)
+    num_invalid = len(invalid_experiments)
+    assert (num_valid   > 0) and (num_valid   < num_experiments)
+    assert (num_invalid > 0) and (num_invalid < num_experiments)
+    assert (num_valid + num_invalid) == num_experiments
     for param_tuple, results_list in valid_experiments.items():
         x, y, z = [pair[1] for pair in param_tuple]
         assert is_valid(x, y, z)
@@ -110,7 +111,7 @@ def test_sweep_errors():
     printer(
         "%i experiments performed in total, of which %i were valid, and %i "
         "were invalid"
-        % (num_experiments, len(valid_experiments), len(invalid_experiments))
+        % (num_experiments, num_valid, num_invalid)
     )
 
 def test_sweep_categorical_and_log_range_parameters():
