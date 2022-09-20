@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import pytest
 import plotting
@@ -11,12 +12,13 @@ def test_plot_lines():
     line2 = plotting.Line([1.6, 1.3, 1.8], [3.1, 5.6, 4], marker="o", c="r")
     line3 = plotting.Line([1.4, 2.5], [3.5, 3.9], ls="--", c="g")
     line4 = plotting.HVLine(h=5.3, v=2.2, c="m", zorder=-10, lw=10, alpha=0.4)
-    plotting.plot(
+    output_filename = plotting.plot(
         line_list=[line1, line2, line3, line4],
         plot_name="test_plot_lines",
         dir_name=OUTPUT_DIR,
         axis_properties=plotting.AxisProperties(xlabel="x", ylabel="y"),
     )
+    assert os.path.isfile(output_filename)
 
 def test_plot_fill():
     fill1 = plotting.FillBetween(
@@ -33,12 +35,13 @@ def test_plot_fill():
         color="r",
         alpha=0.3,
     )
-    plotting.plot(
+    output_filename = plotting.plot(
         line_list=[fill1, fill2],
         plot_name="test_plot_fill",
         dir_name=OUTPUT_DIR,
         axis_properties=plotting.AxisProperties(xlabel="x", ylabel="y"),
     )
+    assert os.path.isfile(output_filename)
 
 def test_legend():
     line1 = plotting.Line([1, 2], [1, 2], marker="o", c="r", label="Red line")
@@ -54,18 +57,19 @@ def test_legend():
         label="Patch",
     )
     axis_properties = plotting.AxisProperties(xlabel="x", ylabel="y")
-    plotting.plot(
+    output_filename = plotting.plot(
         line_list=[line1, line2, line3, line4, fill1],
         plot_name="test_legend",
         dir_name=OUTPUT_DIR,
         axis_properties=axis_properties,
         legend_properties=plotting.LegendProperties(),
     )
+    assert os.path.isfile(output_filename)
 
 def test_plot_bar():
     x1 = "Red" * 10
     x2 = "Green" * 5
-    plotting.plot(
+    output_filename = plotting.plot(
         line_list=[
             plotting.Bar(x1, 3.1, color="r", zorder=10, label="Bar 1"),
             plotting.Bar(x2, 4.3, color="g", zorder=10, label="Bar 2"),
@@ -79,30 +83,33 @@ def test_plot_bar():
         ),
         legend_properties=plotting.LegendProperties(),
     )
+    assert os.path.isfile(output_filename)
 
 def test_log_axes():
     x1 = [1, 2, 3, 4, 5, 6]
     y1 = 1e-3 * np.array([1.2, 6, 120, 600, 1e4, 9e4])
-    plotting.plot(
+    output_filename = plotting.plot(
         line_list=[plotting.Line(x1, y1, c="b", marker="o")],
         plot_name="test_log_axes - log y axis",
         dir_name=OUTPUT_DIR,
         axis_properties=plotting.AxisProperties("x", "y", log_yscale=True),
     )
+    assert os.path.isfile(output_filename)
 
     x2 = [0.1, 1, 10, 100, 1000]
     y2 = [3.8, 3.2, 1.8, 1.2, -1.2]
-    plotting.plot(
+    output_filename = plotting.plot(
         line_list=[plotting.Line(x2, y2, c="b", marker="o")],
         plot_name="test_log_axes - log x axis",
         dir_name=OUTPUT_DIR,
         axis_properties=plotting.AxisProperties("x", "y", log_xscale=True),
     )
+    assert os.path.isfile(output_filename)
 
     x3 = [1, 10, 100, 1000]
     noise = np.array([0.4, 1.8, 0.3, 2.2])
     y3 = 1e-4 * np.power(x3, 2.3) * noise
-    plotting.plot(
+    output_filename = plotting.plot(
         line_list=[plotting.Line(x3, y3, c="b", marker="o")],
         plot_name="test_log_axes - log both axes",
         dir_name=OUTPUT_DIR,
@@ -113,6 +120,7 @@ def test_log_axes():
             log_yscale=True,
         ),
     )
+    assert os.path.isfile(output_filename)
 
 @pytest.mark.parametrize("num_colours, cyclic", [[5, True], [7, False]])
 def test_colour_picker(num_colours, cyclic):
@@ -127,12 +135,13 @@ def test_colour_picker(num_colours, cyclic):
         )
         for i in range(num_colours)
     ]
-    plotting.plot(
+    output_filename = plotting.plot(
         line_list=line_list,
         plot_name="test_colour_picker, cyclic=%s" % cyclic,
         dir_name=OUTPUT_DIR,
         legend_properties=plotting.LegendProperties(),
     )
+    assert os.path.isfile(output_filename)
 
 def test_title():
     """ Check that long titles are wrapped, invalid characters are removed from
@@ -151,7 +160,7 @@ def test_title():
         marker="o",
         label="$\\beta ^ \\varepsilon$",
     )
-    plotting.plot(
+    output_filename = plotting.plot(
         [line],
         plot_name=title,
         dir_name=OUTPUT_DIR,
@@ -161,3 +170,4 @@ def test_title():
         ),
         legend_properties=plotting.LegendProperties()
     )
+    assert os.path.isfile(output_filename)
