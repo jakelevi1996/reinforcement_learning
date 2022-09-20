@@ -30,7 +30,10 @@ def test_exception_context():
     printer("ExceptionContext has exited, now back in test_exception_context")
 
     with pytest.raises(ValueError):
-        with util.ExceptionContext(suppress_exceptions=False):
+        with util.ExceptionContext(
+            suppress_exceptions=False,
+            printer=printer,
+        ):
             raise ValueError
 
 def test_printer():
