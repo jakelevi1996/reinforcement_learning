@@ -47,6 +47,8 @@ def test_printer():
     with pytest.raises(ValueError):
         printer("Checking close method worked")
 
+    assert os.path.isfile(os.path.join(OUTPUT_DIR, "test_printer.txt"))
+
 def test_seeder():
     assert util.Seeder().get_seed("123") == util.Seeder().get_seed("123")
     assert util.Seeder().get_seed("123") != util.Seeder().get_seed("321")
