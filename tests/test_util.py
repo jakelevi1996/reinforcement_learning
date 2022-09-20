@@ -48,7 +48,12 @@ def test_printer():
         printer("Checking close method worked")
 
 def test_seeder():
+    assert util.Seeder().get_seed("123") == util.Seeder().get_seed("123")
+    assert util.Seeder().get_seed("123") != util.Seeder().get_seed("321")
+
     seeder = util.Seeder()
+    assert seeder.get_seed("123") != seeder.get_seed("123")
+
     seed_list = [
         seeder.get_seed(3, "string", seeder),
         seeder.get_seed(3, "string", seeder),
