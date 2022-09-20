@@ -18,15 +18,15 @@ class Parameter:
         self.default = default
         self.val_results_dict = None
 
-        if (val_range is None) and ((val_lo is None) or (val_hi is None)):
-            raise ValueError(
-                "Must either specify val_range or specify val_lo and val_hi"
-            )
         if val_range is None:
-            if log_space:
-                val_range = np.exp(
-                    np.linspace(np.log(val_lo), np.log(val_hi), val_num)
+            if (val_lo is None) or (val_hi is None):
+                raise ValueError(
+                    "Must either specify val_range or specify val_lo and "
+                    "val_hi"
                 )
+            if log_space:
+                log_lo, log_hi = np.log([val_lo, val_hi])
+                val_range = np.exp(np.linspace(log_lo, log_hi, val_num))
             else:
                 val_range = np.linspace(val_lo, val_hi, val_num)
 
@@ -36,8 +36,8 @@ class Parameter:
             plot_axis_properties = plotting.AxisProperties(
                 xlabel=name,
                 ylabel="Result",
+                log_xscale=log_space,
             )
-            plot_axis_properties.log_xscale = log_space
 
         self.plot_axis_properties = plot_axis_properties
 
@@ -84,10 +84,7 @@ class ParamSweeper:
         while True:
             self._has_updated_any_parameters = False
             for parameter in self._param_list:
-                self._print(
-                    "\nSweeping over parameter %r..."
-                    % parameter.name
-                )
+                self._print("\nSweeping over parameter %r..." % parameter.name)
                 self.sweep_parameter(parameter, update_parameters=True)
             if not self._has_updated_any_parameters:
                 self._print("\nFinished sweeping through parameters")
@@ -134,20 +131,23 @@ class ParamSweeper:
         for param in self._param_list:
             if param.val_results_dict is None:
                 continue
+
             val_results_dict = param.val_results_dict
-            val_list = [
-                val for val in param.val_range
-                if len(val_results_dict[val]) > 0
-            ]
-            results_list_list = [val_results_dict[val] for val in val_list]
             all_results_pairs = [
                 [val, result]
                 for val, result_list in val_results_dict.items()
                 for result in result_list
             ]
             all_results_x, all_results_y = zip(*all_results_pairs)
+
+            val_list = [
+                val for val in param.val_range
+                if len(val_results_dict[val]) > 0
+            ]
+            results_list_list = [val_results_dict[val] for val in val_list]
             mean = np.array([np.mean(x) for x in results_list_list])
             std  = np.array([np.std( x) for x in results_list_list])
+
             mean_default = np.mean(val_results_dict[param.default])
             std_default  = np.std( val_results_dict[param.default])
 
