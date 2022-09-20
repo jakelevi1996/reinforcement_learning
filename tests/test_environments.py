@@ -20,9 +20,17 @@ def test_bandit_environment(repeat):
 
     for action in range(num_actions):
         reward = env.step(action)
-        printer.print("action = %i, reward = %.1f" % (action, reward))
+        optimal = env.is_optimal_action(action)
+        printer.print(
+            "action = %i, reward = %.1f, optimal = %s"
+            % (action, reward, optimal)
+        )
 
     for i in range(rng.choice(range(10, 20))):
         action = rng.choice(num_actions)
         reward = env.step(action)
-        printer.print("action = %i, reward = %.1f" % (action, reward))
+        optimal = env.is_optimal_action(action)
+        printer.print(
+            "action = %i, reward = %.1f, optimal = %s"
+            % (action, reward, optimal)
+        )
