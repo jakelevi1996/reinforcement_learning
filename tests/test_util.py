@@ -55,6 +55,7 @@ def test_printer():
 def test_seeder():
     assert util.Seeder().get_seed("123") == util.Seeder().get_seed("123")
     assert util.Seeder().get_seed("123") != util.Seeder().get_seed("321")
+    assert util.Seeder().get_seed(1, 2, 3) != util.Seeder().get_seed(3, 2, 1)
 
     seeder = util.Seeder()
     assert seeder.get_seed("123") != seeder.get_seed("123")
