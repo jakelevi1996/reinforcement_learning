@@ -207,13 +207,22 @@ def test_multiple_sweeps():
     for target in target_list:
         target_tuple = (("x", target[0]), ("y", target[1]), ("z", target[2]))
         assert target_tuple in sweeper._params_to_results_dict
+        printer(
+            "target %s found in dictionary with results %s"
+            % (target, sweeper._params_to_results_dict[target_tuple])
+        )
 
     for i in range(11):
         point_tuple = (("x", i), ("y", i), ("z", i))
-        if i in [0, 5, 10]:
+        if [i, i, i] in target_list:
             assert point_tuple in sweeper._params_to_results_dict
+            printer(
+                "Diagonal point %s found in dictionary with results %s"
+                % ([i, i, i], sweeper._params_to_results_dict[point_tuple])
+            )
         else:
             assert point_tuple not in sweeper._params_to_results_dict
+            printer("Diagonal point %s not found in dictionary" % [i, i, i])
 
 def sq_distance(v1, v2):
     return np.sum(np.square(np.array(v1) - np.array(v2)))
