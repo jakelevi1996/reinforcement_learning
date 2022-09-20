@@ -101,7 +101,7 @@ def test_sweep_errors():
     for param_tuple, results_list in valid_experiments.items():
         x, y, z = [pair[1] for pair in param_tuple]
         assert is_valid(x, y, z)
-        assert len(results_list) > 0
+        assert len(results_list) == num_repeats
 
     for param_tuple, results_list in invalid_experiments.items():
         x, y, z = [pair[1] for pair in param_tuple]
