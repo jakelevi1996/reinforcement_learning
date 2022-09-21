@@ -9,6 +9,13 @@ OUTPUT_DIR = tests.util.get_output_dir("test_sweep")
 
 @pytest.mark.parametrize("higher_is_better", [True, False])
 def test_sweep(higher_is_better):
+    """
+    Test the sweep.ParamSweeper class, including the add_parameter,
+    find_best_parameters, and plot methods, initialised with higher_is_better
+    as both True and False (each in a different test run, facilitated by
+    pytest.mark.parametrize), and check that that the optimal parameters are
+    found by the find_best_parameters method in both cases
+    """
     if higher_is_better:
         output_dir = os.path.join(OUTPUT_DIR, "higher_is_better")
     else:
@@ -49,6 +56,14 @@ def test_sweep(higher_is_better):
     assert optimal_params == target
 
 def test_sweep_errors():
+    """
+    Test sweeping over the parameters of an experiment in which some
+    combinations of parameters cause an exception to be raised, that the
+    exceptions are suppressed, that the results of the parameter sweeps can
+    still be plotted (even though some combinations of parameters that were
+    tested have no results to be plotted), and that the results of valid and
+    invalid experiments pass sanity checks
+    """
     output_dir = os.path.join(OUTPUT_DIR, "test_sweep_errors")
     printer = util.Printer("Console_output.txt", output_dir)
     rng = util.Seeder().get_rng("test_sweep_errors")
@@ -80,6 +95,7 @@ def test_sweep_errors():
     sweeper.find_best_parameters()
     sweeper.plot("test_sweep_errors", output_dir)
 
+    # Perform sanity checks on the results of valid and invalid experiments
     num_experiments = len(sweeper._params_to_results_dict)
     valid_experiments = {
         param_tuple: results_list
@@ -115,6 +131,14 @@ def test_sweep_errors():
     )
 
 def test_sweep_categorical_and_log_range_parameters():
+    """
+    Test sweeping over a parameter which takes categorical (non-numerical)
+    values, that the optimal value of this parameter is found without error,
+    and that the optimal value of the categorical parameter is considered to be
+    that which most reliably produces high results (not simply the value with
+    the highest mean results). Also test initialising a Parameter using the
+    val_lo, val_hi, val_num, and log_space arguments
+    """
     output_dir = os.path.join(
         OUTPUT_DIR,
         "test_sweep_categorical_and_log_range_parameters",
@@ -156,6 +180,14 @@ def test_sweep_categorical_and_log_range_parameters():
     assert optimal_param_dict["category"] == "orange"
 
 def test_multiple_sweeps():
+    """
+    Test finding the optimal parameters for an experiment which is contrived to
+    require each parameter to change default values multiple times, by
+    repeatedly changing the experiment such that the parmeter values are
+    attracted towards a target which repeatedly changes location. Test also
+    that the ParamSweeper instance tests combinations of parameter values which
+    are expected and not ones which are unexpected
+    """
     output_dir = os.path.join(OUTPUT_DIR, "test_multiple_sweeps")
     printer = util.Printer("Console_output.txt", output_dir)
 
@@ -201,9 +233,13 @@ def test_multiple_sweeps():
         % len(sweeper._params_to_results_dict)
     )
 
+    # Check that the optimal parameters returned by find_best_parameters are
+    # equal to the final target
     optimal_params = [optimal_param_dict[key] for key in ["x", "y", "z"]]
     assert optimal_params == target_list[-1]
 
+    # Check that every point in the list of targets has been tested in an
+    # experiment
     for target in target_list:
         target_tuple = (("x", target[0]), ("y", target[1]), ("z", target[2]))
         assert target_tuple in sweeper._params_to_results_dict
@@ -212,6 +248,8 @@ def test_multiple_sweeps():
             % (target, sweeper._params_to_results_dict[target_tuple])
         )
 
+    # Check that points on the main diagonal are tested if they're in the
+    # target list, and not tested if they're not in the target list
     for i in range(11):
         point_tuple = (("x", i), ("y", i), ("z", i))
         if [i, i, i] in target_list:

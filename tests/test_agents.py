@@ -16,6 +16,10 @@ bandit_agent_list = [
 
 @pytest.mark.parametrize("bandit_type", bandit_agent_list)
 def test_bandit_agents(bandit_type):
+    """
+    Test each type of bandit agent, including the get_name, choose_action and
+    update methods
+    """
     printer = util.Printer("%s.txt" % (bandit_type.__name__), OUTPUT_DIR)
     seed = util.Seeder().get_seed("test_bandit_agents", bandit_type)
     rng = np.random.default_rng(seed)

@@ -8,6 +8,12 @@ import tests.util
 OUTPUT_DIR = tests.util.get_output_dir("test_plotting")
 
 def test_plot_lines():
+    """
+    Test creating a few lines, including instances of both the Line and HVLine
+    classes, with a variety of colours, markers, line styles, and
+    transparencies, plotting them on a single graph, and saving that graph to
+    disk, with specified axis labels
+    """
     line1 = plotting.Line([1, 2, 3], [4, 5, 7], c="b")
     line2 = plotting.Line([1.6, 1.3, 1.8], [3.1, 5.6, 4], marker="o", c="r")
     line3 = plotting.Line([1.4, 2.5], [3.5, 3.9], ls="--", c="g")
@@ -21,6 +27,10 @@ def test_plot_lines():
     assert os.path.isfile(output_filename)
 
 def test_plot_fill():
+    """
+    Test creating and plotting filled shapes with the plotting.FillBetween
+    class
+    """
     fill1 = plotting.FillBetween(
         x=[1, 2, 2.5],
         y1=[1.5, 2, 3],
@@ -44,6 +54,13 @@ def test_plot_fill():
     assert os.path.isfile(output_filename)
 
 def test_legend():
+    """
+    Test creating a legend, and adding various different types and styles of
+    lines and filled shapes to that legend. Also test plotting a line which is
+    not initialised with the `label` keyword argument, which should not be
+    added to the legend, whereas all lines initialised with the `label` keyword
+    argument should be added to the legend
+    """
     line1 = plotting.Line([1, 2], [1, 2], marker="o", c="r", label="Red line")
     line2 = plotting.Line([1.2, 1.8], [1.8, 1.2], c="g", label="Green line")
     line3 = plotting.Line([1.3, 1.7], [1.5, 1.6], marker="o", c="y")
@@ -67,6 +84,12 @@ def test_legend():
     assert os.path.isfile(output_filename)
 
 def test_plot_bar():
+    """
+    Test creating a bar chart using the plotting.Bar class, and also test
+    passing `rotate_xticklabels=True` to `plotting.AxisProperties` (this is
+    useful for bar charts with long strings as independent variables which
+    would otherwise overlap)
+    """
     x1 = "Red" * 10
     x2 = "Green" * 5
     output_filename = plotting.plot(
@@ -86,6 +109,13 @@ def test_plot_bar():
     assert os.path.isfile(output_filename)
 
 def test_log_axes():
+    """
+    Test making plots with:
+
+    - Logarithmic x axis and linear y axis
+    - Linear x axis and logarithmic y axis
+    - Both logarithmic x axis and logarithmic y axis
+    """
     x1 = [1, 2, 3, 4, 5, 6]
     y1 = 1e-3 * np.array([1.2, 6, 120, 600, 1e4, 9e4])
     output_filename = plotting.plot(
@@ -124,6 +154,10 @@ def test_log_axes():
 
 @pytest.mark.parametrize("num_colours, cyclic", [[5, True], [7, False]])
 def test_colour_picker(num_colours, cyclic):
+    """
+    Test the plotting.ColourPicker class for generating unique colours for
+    different plotting elements, with both cyclic and non-cyclic colour maps
+    """
     cp = plotting.ColourPicker(num_colours, cyclic)
     x = np.linspace(-1, 7, 100)
     line_list = [
@@ -144,9 +178,12 @@ def test_colour_picker(num_colours, cyclic):
     assert os.path.isfile(output_filename)
 
 def test_title():
-    """ Check that long titles are wrapped, invalid characters are removed from
-    the title, and latex formatting within the title (or axis or legend labels)
-    is formatted correctly """
+    """
+    Check that long titles are wrapped onto multiple lines, plot names
+    containing invalid characters can still be used to generate valid filenames
+    by replacing invalid characters from the plot names, and latex formatting
+    within the title (or axis or legend labels) is formatted correctly
+    """
     title = (
         "This is a very long title containing /|\\*:<\"$pecial?\">:*/|\\ "
         "characters which wraps multiple lines because it is too long for "
