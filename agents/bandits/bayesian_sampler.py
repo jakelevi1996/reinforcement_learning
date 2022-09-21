@@ -40,10 +40,7 @@ class _BayesianSampler(_BanditAgent):
             * posterior_var
         )
 
-        samples = self._rng.normal(
-            posterior_mean,
-            np.sqrt(posterior_var),
-        )
+        samples = self._rng.normal(posterior_mean, np.sqrt(posterior_var))
         action = np.argmax(samples)
         return action
 
