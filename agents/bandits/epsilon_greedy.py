@@ -2,6 +2,13 @@ import numpy as np
 from agents.bandits.bandit_agent import _BanditAgent
 
 class EpsilonGreedy(_BanditAgent):
+    """
+    This class represents the epsilon greedy algorithm for the K-armed bandit,
+    which estimates each action value using sequential estimation, and upon
+    choosing an action makes a random choice with probability epsilon (to
+    encourage exploration), and makes a greedy action choice (choosing the
+    action with the highest value) with probability 1 - epsilon
+    """
     def __init__(
         self,
         epsilon=0.02,
@@ -54,6 +61,13 @@ class EpsilonGreedy(_BanditAgent):
         return name
 
 class EpsilonGreedyConstantStepSize(EpsilonGreedy):
+    """
+    This class represents the epsilon greedy algorithm for the K-armed bandit,
+    which estimates each action value using a constant step size, and upon
+    choosing an action makes a random choice with probability epsilon (to
+    encourage exploration), and makes a greedy action choice (choosing the
+    action with the highest value) with probability 1 - epsilon
+    """
     def update(self, action, reward):
         self._value_estimates[action] += (
             self._step_size * (reward - self._value_estimates[action])

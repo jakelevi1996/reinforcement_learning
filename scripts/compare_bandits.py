@@ -1,3 +1,8 @@
+"""
+This script is used to compare different types of bandit agents on multiple
+randomly generated 10-armed bandit tasks, and plot the results in a variety of
+graphs.
+"""
 import argparse
 import os
 import time
@@ -12,6 +17,14 @@ import util
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 class AgentResult:
+    """
+    This class stores and processes data for each agent being tested in this
+    script. A list of instances of this class (one instance for each agent
+    being tested) is passed to the `main` function of this script, and is also
+    stored in the data attribute of an instance of the util.Result class, which
+    is saved to disk when the main function finishes (either successfully or
+    due to an exception)
+    """
     def __init__(self, agent_type, name, num_steps, num_repeats):
         self.construcor = agent_type
         self.name = name
@@ -42,6 +55,17 @@ def main(agent_result_list, args):
                     agent_result.optimal_choice_array[i, j] = 1
 
 def plot(agent_result_list, args):
+    """
+    Make the following plots, plotted with a unique colour for each agent, and
+    save each plot to disk:
+
+    - Mean rewards over time
+    - All rewards (as semitransparent markers) over time, with mean rewards
+      overlayed
+    - Mean rewards with standard deviations over time
+    - The percentage of actions that were optimal over time
+    - A bar plot of the total mean rewards
+    """
     t = np.arange(args.num_steps)
     mt = min(5 / args.num_repeats, 0.2)
     line_props = {"ls": "-", "marker": "", "alpha": 1, "zorder": 20}
@@ -49,6 +73,8 @@ def plot(agent_result_list, args):
     cp = plotting.ColourPicker(len(agent_result_list))
     for a in agent_result_list:
         a.get_mean_std_reward()
+    # Create various line objects for each agent, that will be used in the
+    # plots below
     rewards_line_list = [
         plotting.Line(
             t,
@@ -112,6 +138,7 @@ def plot(agent_result_list, args):
         color=cp(argmax_reward),
         label="Max reward (%s)" % agent_result_list[argmax_reward].name,
     )
+    # Plot mean rewards over time
     plotting.plot(
         mean_reward_line_list,
         (
@@ -128,6 +155,7 @@ def plot(agent_result_list, args):
         legend_properties=plotting.LegendProperties(0.4),
         figsize=[12, 6],
     )
+    # Plot all rewards, with mean rewards overlayed
     plotting.plot(
         [
             line
@@ -148,6 +176,7 @@ def plot(agent_result_list, args):
         legend_properties=plotting.LegendProperties(0.4),
         figsize=[12, 6],
     )
+    # Plot mean rewards with standard deviations
     plotting.plot(
         [
             line
@@ -169,6 +198,7 @@ def plot(agent_result_list, args):
         legend_properties=plotting.LegendProperties(0.4),
         figsize=[12, 6],
     )
+    # Plot the percentage of actions that were optimal over time
     plotting.plot(
         percent_optimal_choice_line_list,
         (
@@ -185,6 +215,7 @@ def plot(agent_result_list, args):
         ),
         legend_properties=plotting.LegendProperties(),
     )
+    # Make a bar plot of the total mean rewards
     plotting.plot(
         mean_reward_bar_list + [max_mean_reward_hline],
         (
@@ -203,7 +234,7 @@ def plot(agent_result_list, args):
     )
 
 if __name__ == "__main__":
-    # Define CLI using argparse
+    # Define CLI using argparse and parse command-line arguments
     parser = argparse.ArgumentParser(description="Compare bandit algorithms")
 
     parser.add_argument(
@@ -253,7 +284,6 @@ if __name__ == "__main__":
         type=int,
     )
 
-    # Parse arguments
     args = parser.parse_args()
 
     # If we're loading data from file, do so now, because in case
@@ -277,6 +307,8 @@ if __name__ == "__main__":
                 args.results_dir,
                 "bandit_data.pkl",
             )
+        # Generate a list of instances of AgentResult, with one instance for
+        # each agent-type being compared
         agent_result_list = [
             AgentResult(
                 agent_type,
@@ -292,11 +324,14 @@ if __name__ == "__main__":
                 agents.bandits.BayesianSamplerBroadPrior,
             ]
         ]
+        # Create a Result object, enter an appropriate context manager, call
+        # the main function, and print the running time
         result_data = [agent_result_list, args.num_steps, args.num_repeats]
         result = util.Result(args.save_data_filename, result_data)
         with result.get_context(save=args.save):
             util.time_func(main, agent_result_list, args)
 
+    # If specified, create output plots
     if args.plot:
         print("Plotting results...")
         plot(agent_result_list, args)

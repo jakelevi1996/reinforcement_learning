@@ -2,6 +2,12 @@ import numpy as np
 from agents.bandits.bandit_agent import _BanditAgent
 
 class GradientBandit(_BanditAgent):
+    """
+    This class represents a bandit algorithm that estimates a numerical
+    preference for each action, which is optimised using stochastic gradient
+    ascent on the expected rewards. Actions are sampled with probabilies
+    calculated by applying a softmax function to the action preferences.
+    """
     def __init__(self, step_size=0.5, num_actions=10, rng=None):
         self._num_actions = num_actions
         self._step_size = step_size

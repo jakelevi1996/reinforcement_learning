@@ -1,3 +1,8 @@
+"""
+Sweep over a range of parameters for each bandit algorithm to find the
+approximately optimal parameters, and plot the results of each parameter sweep
+on a graph which is saved to disk
+"""
 import argparse
 import os
 import time

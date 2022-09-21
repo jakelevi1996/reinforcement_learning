@@ -2,6 +2,25 @@ import numpy as np
 from agents.bandits.bandit_agent import _BanditAgent
 
 class _BayesianSampler(_BanditAgent):
+    """
+    This abstract class represents a bandit algorithm in which:
+
+    - A Gaussian posterior distribution is maintained over each action value,
+      which is proportional to the product of the likelihood and prior
+      distributions
+        - Note that the distribution over the value (mean reward) of an action
+          accounts for epistemic uncertainty but not alleatoric uncertainty,
+          which is different to the distribution over the reward returned from
+          an action, which accounts for both epistemic and alleatoric
+          uncertainty
+    - A Gaussian likelihood distribution is maintained over each action value,
+      and is updated each time a reward is received using sequential estimation
+    - A Gaussian prior distribution is shared among all action values, and is
+      updated each time a reward is received
+    - Actions are chosen by drawing a sample from the estimated posterior
+      distribution over each action value, and choosing the action whose value
+      corresponds to the highest sample
+    """
     def __init__(self, num_actions=10, rng=None):
         self._step = 0
         self._num_actions = num_actions
@@ -68,6 +87,14 @@ class _BayesianSampler(_BanditAgent):
 
 class BayesianSamplerBroadPrior(_BayesianSampler):
     def _set_prior(self, reward):
+        """
+        Set the shared prior distribution over all action values as the maximum
+        likelihood Gaussian distribution over all rewards received from all
+        actions. Note that this biases the prior distribution towards values of
+        actions which are taken more often, which are generally those actions
+        with higher estimated action values, leading to an optimistic prior
+        distribution over action values which may encourage exploration
+        """
         self._step += 1
         self._prior_mean += (reward - self._prior_mean) / self._step
         self._prior_mean_square += (
@@ -84,6 +111,25 @@ class BayesianSamplerBroadPrior(_BayesianSampler):
 
 class BayesianSamplerValuePrior(_BayesianSampler):
     def _set_prior(self, reward):
+        """
+        Set the shared prior distribution over all action values as the maximum
+        likelihood Gaussian distribution of the means of the estimated
+        likelihood distributions of all action values. Note that:
+
+        - If the means of the estimated likelihood distributions of all action
+          values span a wide range, then the prior distribution over action
+          values will have a large variance
+        - Because the means of the estimated likelihood distributions of all
+          the action values are estimated using all the rewards that have been
+          received, this is similar to setting the prior distribution over
+          action values equal to maximum likelihood Gaussian distribution over
+          all rewards received from all actions. The main difference is that
+          each action contributes equally to the prior distribution in this
+          case, even if an action has not been sampled many times (which would
+          generally imply that the action has a lower value), which biases the
+          prior relatively more towards actions with lower action values, which
+          relatively discourages exploration and encourages exploitation
+        """
         self._prior_mean = np.mean(self._likelihood_mean)
         self._prior_var = np.var(self._likelihood_mean)
 
