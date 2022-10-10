@@ -105,14 +105,33 @@ class AxisProperties:
         tight_layout=True,
         rotate_xticklabels=False,
     ):
-        self.xlabel = xlabel
-        self.ylabel = ylabel
-        self.xlim = xlim
-        self.ylim = ylim
-        self.log_xscale = log_xscale
-        self.log_yscale = log_yscale
-        self.tight_layout = tight_layout
-        self.rotate_xticklabels = rotate_xticklabels
+        self._xlabel = xlabel
+        self._ylabel = ylabel
+        self._xlim = xlim
+        self._ylim = ylim
+        self._log_xscale = log_xscale
+        self._log_yscale = log_yscale
+        self._tight_layout = tight_layout
+        self._rotate_xticklabels = rotate_xticklabels
+
+    def apply(self, axis, figure):
+        if self._xlabel is not None:
+            axis.set_xlabel(self._xlabel)
+        if self._ylabel is not None:
+            axis.set_ylabel(self._ylabel)
+        if self._xlim is not None:
+            axis.set_xlim(self._xlim)
+        if self._ylim is not None:
+            axis.set_ylim(self._ylim)
+        if self._log_xscale:
+            axis.set_xscale("log")
+        if self._log_yscale:
+            axis.set_yscale("log")
+        if self._rotate_xticklabels:
+            for xtl in axis.get_xticklabels():
+                xtl.set(rotation=-45, ha="left")
+        if self._tight_layout:
+            figure.tight_layout()
 
 class LegendProperties:
     def __init__(self, width_ratio=0.2):
@@ -169,23 +188,7 @@ def plot(
         legend_axis.axis("off")
 
     if axis_properties is not None:
-        if axis_properties.xlabel is not None:
-            plot_axis.set_xlabel(axis_properties.xlabel)
-        if axis_properties.ylabel is not None:
-            plot_axis.set_ylabel(axis_properties.ylabel)
-        if axis_properties.xlim is not None:
-            plot_axis.set_xlim(axis_properties.xlim)
-        if axis_properties.ylim is not None:
-            plot_axis.set_ylim(axis_properties.ylim)
-        if axis_properties.log_xscale:
-            plot_axis.set_xscale("log")
-        if axis_properties.log_yscale:
-            plot_axis.set_yscale("log")
-        if axis_properties.rotate_xticklabels:
-            for xtl in plot_axis.get_xticklabels():
-                xtl.set(rotation=-45, ha="left")
-        if axis_properties.tight_layout:
-            fig.tight_layout()
+        axis_properties.apply(plot_axis, fig)
 
     plot_filename = save_and_close(plot_name, fig, dir_name)
     return plot_filename
