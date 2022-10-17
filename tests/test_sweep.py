@@ -262,5 +262,42 @@ def test_multiple_sweeps():
             assert point_tuple not in sweeper._params_to_results_dict
             printer("Diagonal point %s not found in dictionary" % [i, i, i])
 
+def test_default_optimum_not_in_range():
+    """
+    Test running an experiment and plotting the results when the initial
+    default value for a parameter (in this case all parameters) is the optimal
+    value, but it is not in the range of parameter values that is swept over
+    for each parameter.
+    """
+    output_dir = os.path.join(OUTPUT_DIR, "test_default_optimum_not_in_range")
+
+    printer = util.Printer("Console_output.txt", output_dir)
+    target = 0
+    rng = util.Seeder().get_rng("test_default_optimum_not_in_range")
+
+    class SimpleExperiment(sweep.Experiment):
+        def run(self, x, y, z):
+            noise = rng.normal()
+            return sq_distance([x, y, z], target) + noise
+
+    sweeper = sweep.ParamSweeper(
+        experiment=SimpleExperiment(),
+        n_repeats=100,
+        n_sigma=2.5,
+        higher_is_better=False,
+        print_every=50,
+        printer=printer,
+    )
+    sweeper.add_parameter(sweep.Parameter("x", 0, [-1, 1]))
+    sweeper.add_parameter(sweep.Parameter("y", 0, [-1, 1]))
+    sweeper.add_parameter(sweep.Parameter("z", 0, [-1, 1]))
+    optimal_param_dict = sweeper.find_best_parameters()
+    sweeper.plot("test_default_optimum_not_in_range", output_dir)
+
+    printer(
+        "%i experiments performed in total"
+        % len(sweeper._params_to_results_dict)
+    )
+
 def sq_distance(v1, v2):
     return np.sum(np.square(np.array(v1) - np.array(v2)))
