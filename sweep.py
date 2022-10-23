@@ -1,42 +1,59 @@
+"""
+MIT License
+
+Copyright (c) 2022 JAKE LEVI
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+"""
+
 import numpy as np
 import util
 import plotting
+
+def get_range(val_lo, val_hi, val_num=10, log_space=False):
+    if log_space:
+        log_lo, log_hi = np.log([val_lo, val_hi])
+        val_range = np.exp(np.linspace(log_lo, log_hi, val_num))
+    else:
+        val_range = np.linspace(val_lo, val_hi, val_num)
+
+    return val_range
 
 class Parameter:
     def __init__(
         self,
         name,
         default,
-        val_range=None,
-        val_lo=None,
-        val_hi=None,
-        val_num=10,
-        log_space=False,
+        val_range,
+        log_x_axis=False,
         plot_axis_properties=None,
     ):
         self.name = name
         self.default = default
-        self.val_results_dict = None
-
-        if val_range is None:
-            if (val_lo is None) or (val_hi is None):
-                raise ValueError(
-                    "Must either specify val_range or specify val_lo and "
-                    "val_hi"
-                )
-            if log_space:
-                log_lo, log_hi = np.log([val_lo, val_hi])
-                val_range = np.exp(np.linspace(log_lo, log_hi, val_num))
-            else:
-                val_range = np.linspace(val_lo, val_hi, val_num)
-
         self.val_range = val_range
+        self.val_results_dict = None
 
         if plot_axis_properties is None:
             plot_axis_properties = plotting.AxisProperties(
                 xlabel=name,
                 ylabel="Result",
-                log_xscale=log_space,
+                log_xscale=log_x_axis,
             )
 
         self.plot_axis_properties = plot_axis_properties
@@ -59,6 +76,7 @@ class ParamSweeper:
         n_sigma=1,
         higher_is_better=True,
         print_every=1,
+        verbose=True,
         printer=None,
     ):
         self._experiment = experiment
@@ -66,6 +84,7 @@ class ParamSweeper:
         self._n_sigma = n_sigma
         self._higher_is_better = higher_is_better
         self._print_every = print_every
+        self._verbose = verbose
         if printer is None:
             printer = util.Printer()
         self._print = printer
@@ -113,11 +132,14 @@ class ParamSweeper:
             val_results_dict[val] = results_list
 
         if update_parameters:
-            best_param_val = self._get_best_param_val(val_results_dict)
+            best_param_val, score = self._get_best_param_val(val_results_dict)
             if parameter.default != best_param_val:
                 self._print(
-                    "\nParameter %r default value changing from %s to %s"
-                    % (parameter.name, parameter.default, best_param_val),
+                    "\nParameter %r default value changing from %r to %r"
+                    % (parameter.name, parameter.default, best_param_val)
+                )
+                self._print(
+                    "New optimal objective function value = %r" % score
                 )
                 parameter.default = best_param_val
                 self._has_updated_any_parameters = True
@@ -126,7 +148,31 @@ class ParamSweeper:
 
         return val_results_dict
 
-    def plot(self, experiment_name="Experiment", output_dir=None):
+    def tighten_ranges(self, new_num_vals=15):
+        for param in self._param_list:
+            if any(not util.is_numeric(v) for v in param.val_range):
+                continue
+            lo_candidates = [v for v in param.val_range if v < param.default]
+            hi_candidates = [v for v in param.val_range if v > param.default]
+            if len(lo_candidates) > 0:
+                val_lo = max(lo_candidates)
+            else:
+                val_lo = param.default / 2
+            if len(hi_candidates) > 0:
+                val_hi = min(hi_candidates)
+            else:
+                val_hi = param.default * 2
+            new_range = get_range(val_lo, val_hi, new_num_vals)
+            param.val_range = np.sort(
+                np.concatenate([new_range, [param.default]])
+            )
+
+    def plot(
+        self,
+        experiment_name="Experiment",
+        output_dir=None,
+        **plot_kwargs,
+    ):
         filename_list = []
         for param in self._param_list:
             if param.val_results_dict is None:
@@ -161,42 +207,41 @@ class ParamSweeper:
             else:
                 param_default_str = str(param.default)
 
-            all_results_line = plotting.Line(
-                all_results_x,
-                all_results_y,
-                c="b",
-                ls="",
-                marker="o",
-                alpha=0.3,
-                label="Result",
-                zorder=20,
-            )
-            mean_line = plotting.Line(
-                val_list,
-                mean,
-                c="b",
-                label="Mean results",
-                zorder=30,
-            )
-            std_line = plotting.FillBetween(
-                val_list,
-                mean + (self._n_sigma * std),
-                mean - (self._n_sigma * std),
-                color="b",
-                label="$\\pm %s \\sigma$" % self._n_sigma,
-                alpha=0.3,
-                zorder=10,
-            )
-            default_line = plotting.HVLine(
-                v=param.default,
-                h=optimal_h,
-                c="r",
-                ls="--",
-                label="Optimal value = %s" % param_default_str,
-                zorder=40,
-            )
             plot_filename = plotting.plot(
-                [all_results_line, mean_line, std_line, default_line],
+                plotting.Line(
+                    all_results_x,
+                    all_results_y,
+                    c="b",
+                    ls="",
+                    marker="o",
+                    alpha=0.3,
+                    label="Result",
+                    zorder=20,
+                ),
+                plotting.Line(
+                    val_list,
+                    mean,
+                    c="b",
+                    label="Mean results",
+                    zorder=30,
+                ),
+                plotting.FillBetween(
+                    val_list,
+                    mean + (self._n_sigma * std),
+                    mean - (self._n_sigma * std),
+                    color="b",
+                    label="$\\pm %s \\sigma$" % self._n_sigma,
+                    alpha=0.3,
+                    zorder=10,
+                ),
+                plotting.HVLine(
+                    v=param.default,
+                    h=optimal_h,
+                    c="r",
+                    ls="--",
+                    label="Optimal value = %s" % param_default_str,
+                    zorder=40,
+                ),
                 plot_name=(
                     "Parameter sweep results for %r, varying parameter %r"
                     % (experiment_name, param.name)
@@ -204,22 +249,24 @@ class ParamSweeper:
                 dir_name=output_dir,
                 legend_properties=plotting.LegendProperties(),
                 axis_properties=param.plot_axis_properties,
+                **plot_kwargs,
             )
             filename_list.append(plot_filename)
 
         return filename_list
 
     def _run_experiment(self, experiment_param_dict):
-        self._print("Running an experiment with the following parameters:")
-        for name, value in experiment_param_dict.items():
-            self._print("| %20r = %r" % (name, value))
+        if self._verbose:
+            self._print("Running an experiment with parameters:")
+            for name, value in experiment_param_dict.items():
+                self._print("| %20r = %r" % (name, value))
 
         results_list = []
         for i in range(self._n_repeats):
             with self._context:
                 score = self._experiment.run(**experiment_param_dict)
                 results_list.append(score)
-                if (i % self._print_every) == 0:
+                if self._verbose and ((i % self._print_every) == 0):
                     self._print(
                         "Repeat %i/%i, result is %s"
                         % (i, self._n_repeats, score)
@@ -252,4 +299,4 @@ class ParamSweeper:
                 key=lambda val: score_dict[val],
             )
 
-        return best_param_val
+        return best_param_val, score_dict[best_param_val]

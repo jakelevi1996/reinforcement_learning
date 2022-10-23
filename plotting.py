@@ -1,9 +1,34 @@
+"""
+MIT License
+
+Copyright (c) 2022 JAKE LEVI
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+"""
+
 import os
 import textwrap
 import matplotlib.pyplot as plt
 import matplotlib.lines
 import matplotlib.patches
 import numpy as np
+import PIL
 import util
 
 class Line:
@@ -68,6 +93,18 @@ class Bar(FillBetween):
 
     def plot(self, axis):
         axis.bar(self._x, self._height, **self._kwargs)
+
+class HVSpan(FillBetween):
+    def __init__(self, xlims=None, ylims=None, **kwargs):
+        self._xlims = xlims
+        self._ylims = ylims
+        self._kwargs = kwargs
+
+    def plot(self, axis):
+        if self._xlims is not None:
+            axis.axvspan(*self._xlims, **self._kwargs)
+        if self._ylims is not None:
+            axis.axhspan(*self._ylims, **self._kwargs)
 
 class ColourPicker:
     def __init__(self, num_colours, cyclic=True, cmap_name=None):
@@ -137,27 +174,36 @@ class LegendProperties:
     def __init__(self, width_ratio=0.2):
         self.width_ratio = width_ratio
 
-def save_and_close(plot_name, fig, dir_name=None, file_ext="png"):
+def save_and_close(plot_name, dir_name, fig, verbose, file_ext="png"):
     if dir_name is None:
         dir_name = util.RESULTS_DIR
     if not os.path.isdir(dir_name):
         os.makedirs(dir_name)
+
+    if len(os.path.abspath(dir_name)) + len(plot_name) > 235:
+        plot_name_len = max(0, 235 - len(os.path.abspath(dir_name)))
+        plot_name = plot_name[:plot_name_len] + "(...)"
+
     file_name = "%s.%s" % (util.clean_filename(plot_name), file_ext)
     full_path = os.path.join(dir_name, file_name)
 
-    print("Saving image in \"%s\"" % full_path)
+    if verbose:
+        print("Saving image in \"%s\"" % full_path)
+
     fig.savefig(full_path)
     plt.close(fig)
 
     return full_path
 
 def plot(
-    line_list,
-    plot_name,
+    *lines,
+    plot_name=None,
     dir_name=None,
     axis_properties=None,
     legend_properties=None,
     figsize=None,
+    save=True,
+    verbose=True,
 ):
     if legend_properties is not None:
         if figsize is None:
@@ -170,10 +216,12 @@ def plot(
             figsize = [8, 6]
         fig, plot_axis = plt.subplots(1, 1, figsize=figsize)
 
-    for line in line_list:
+    for line in lines:
         line.plot(plot_axis)
 
     plot_axis.grid(True, which="both")
+    if plot_name is None:
+        plot_name = "Output"
     if len(plot_name) > 80:
         plot_name = textwrap.fill(plot_name, width=60, break_long_words=False)
     plot_axis.set_title(plot_name)
@@ -181,14 +229,56 @@ def plot(
     if legend_properties is not None:
         legend_axis.legend(
             handles=[
-                line.get_handle() for line in line_list if line.has_label()
+                line.get_handle() for line in lines if line.has_label()
             ],
             loc="center",
         )
         legend_axis.axis("off")
 
-    if axis_properties is not None:
-        axis_properties.apply(plot_axis, fig)
+    if axis_properties is None:
+        axis_properties = AxisProperties()
 
-    plot_filename = save_and_close(plot_name, fig, dir_name)
-    return plot_filename
+    axis_properties.apply(plot_axis, fig)
+
+    if save:
+        plot_filename = save_and_close(plot_name, dir_name, fig, verbose)
+        return plot_filename
+
+def make_gif(
+    *input_paths,
+    output_name=None,
+    output_dir=None,
+    frame_duration_ms=100,
+    optimise=False,
+    loop_forever=True,
+    n_loops=1,
+    verbose=True,
+):
+    if output_name is None:
+        output_name = "Output"
+
+    if output_dir is None:
+        output_dir = util.RESULTS_DIR
+    if not os.path.isdir(output_dir):
+        os.makedirs(output_dir)
+
+    if loop_forever:
+        n_loops = 0
+
+    first_frame = PIL.Image.open(input_paths[0])
+    file_name = "%s.gif" % util.clean_filename(output_name)
+    full_path = os.path.join(output_dir, file_name)
+
+    if verbose:
+        print("Saving gif in \"%s\"" % full_path)
+
+    first_frame.save(
+        full_path,
+        format="gif",
+        save_all=True,
+        append_images=[PIL.Image.open(f) for f in input_paths[1:]],
+        duration=frame_duration_ms,
+        optimise=optimise,
+        loop=n_loops,
+    )
+    return full_path
