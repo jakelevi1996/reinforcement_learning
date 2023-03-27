@@ -166,8 +166,9 @@ def test_sweep_categorical_and_log_range_parameters():
         print_every=50,
         printer=printer,
     )
+    y_range = sweep.get_range(0.1, 10, 20, log_space=True)
     sweeper.add_parameter(sweep.Parameter("x", 0, list(range(11))))
-    sweeper.add_parameter(sweep.Parameter("y", 0.1, None, 0.1, 10, 20, True))
+    sweeper.add_parameter(sweep.Parameter("y", 0.1, y_range, log_x_axis=True))
     sweeper.add_parameter(sweep.Parameter("category", "apple", categories))
     optimal_param_dict = sweeper.find_best_parameters()
     sweeper.plot("test_sweep_categorical_parameter", output_dir)
